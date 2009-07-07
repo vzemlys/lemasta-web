@@ -24,7 +24,7 @@
     
 	<div id="header">
   
-	<div > 
+	 
 	    <?php
 		include 'header.php';
 		include 'menu.php';
