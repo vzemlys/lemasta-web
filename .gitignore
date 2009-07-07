@@ -8,7 +8,7 @@
 *.png
 *.ps
 *.html
-
+pages/temp/*
 #Ignore emacs and vim temporary files
 *.swp
 *.swo

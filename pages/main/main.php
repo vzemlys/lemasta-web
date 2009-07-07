@@ -15,4 +15,6 @@ Vaizduojame lenteles
 Tikriname ar buvo prašyta parodyti grafikus ir juos rodome
 -->
 
-
+<?
+include "pages/main/show.php"
+?>
