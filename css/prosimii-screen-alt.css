@@ -105,7 +105,8 @@ dd {
   padding: 0.5ex 10px;
 }
 
-.superHeader span {
+/*
+  .superHeader span {
   color: rgb(195,196,210);
   background-color: transparent;
   font-weight: bold;
@@ -125,6 +126,7 @@ dd {
   background-color: transparent;
   text-decoration: none;
 }
+*/
 
 .midHeader {
   color: white;
@@ -146,7 +148,7 @@ dd {
   margin: 0 0 1ex 0;
   padding: 0;
 }
-
+/*
 .headerLinks {
   text-align: right;
   margin: 0;
@@ -170,7 +172,7 @@ dd {
   background-color: transparent;
   text-decoration: underline;
 }
-
+*/
 .subHeader {
   color: white;
   background-color: rgb(117,144,174);
@@ -207,15 +209,17 @@ dd {
  /* width: 500em;*/
   margin: 0;
   padding: 1ex 0;
-/* border: 1px solid rgb(204,204,204);*/
-  position: absolute;
+ border: 1px solid rgb(204,204,204);
+  /*position: absolute;
   left: 1.5ex;
-  top: 12em;
+  top: 12em;*/
+  float: left;
 }
 
-[id="side-bar"] {
-  position: fixed !important;  /* Makes the side menu scroll with the page. Doesn't work in MSIE */
+/*[id="side-bar"] {
+  position: fixed !important;  
 }
+*/
 
 #side-bar a {
   text-decoration: none;
@@ -248,9 +252,10 @@ dd {
 
 #main-copy {
   text-align: justify;
-  margin: -0.5ex 1em 1em 30em;
+ /* margin: -0.5ex 1em 1em 30em;*/
   padding: 0.5em 10px;
-  clear: left;
+/*  clear: left;*/
+  float: left;
 }
 
 #main-copy h1 {
@@ -277,7 +282,7 @@ dd {
   margin: 1em 0 1.5em 0;
   padding: 0;
 }
-
+/*
 .newsHeading {
   color: rgb(61,92,122);
   background-color: transparent;
@@ -326,7 +331,7 @@ dd {
   text-decoration: none;
 }
 
-
+*/
 /* ##### Footer ##### */
 
 #footer {
