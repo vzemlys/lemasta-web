@@ -6,7 +6,7 @@ function mainheader($title,$subtitle) {
 
     <div class="midHeader">
 	<h1 class="headerTitle" lang="la"><?echo $title?></h1>
-    <div class="headerSubTitle"><?echo $subtitle?></div>
+   <!-- <div class="headerSubTitle"><?echo $subtitle?></div>-->
 
         <br class="doNotDisplay doNotPrint" />
     </div>
@@ -51,10 +51,13 @@ function head($header,$lev) {
     <meta name="author" content="Vaidotas Zemlys" />
     <meta name="generator" content="Vaidotas Zemlys" />
 
-    
-    <link rel="stylesheet" type="text/css" href=<?level($lev,"css/prosimii-screen-alt.css")?>    media="screen" title="Main css" />
-    <link rel="stylesheet alternative" type="text/css" href=<?level($lev,"css/prosimii-print.css")?>  media="screen" title="Print Preview" />
-    <link rel="stylesheet" type="text/css" href=<?level($lev,"css/prosimii-print.css")?>  "css/prosimii-print.css" media="print" />
+
+    <link rel="stylesheet" type="text/css"
+href=<?level($lev,"css/prosimii-screen-alt.css")?> />
+
+   <link rel="stylesheet" type="text/css"
+href=<?level($lev,"css/smoothness/jquery-ui-1.7.2.custom.css")?>  />
+
 
     <title><?echo $header?></title>
     </head>

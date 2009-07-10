@@ -45,7 +45,7 @@ function showTooltip(x, y, contents) {
     function myfill(text) {
 	var arr=text.split("\n");
 	var parr=preparr(arr);
-	alert(parr);
+	//alert(parr);
 	$("#output").find("input").each(function(i) {
 		    $(this).click(
 		    function(){
