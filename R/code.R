@@ -16,30 +16,48 @@ eqforecast <- function(start,end,eq,endoexo,data,...) {
         res
     }
    
-    timem <- fillstartend(start,end)
+    timem <- qpadd(start,end)
+    indt <- ts(1:dim(data)[1],start=start(data),end=end(data),freq=4)
     res <- numeric()
     for (i in 1:dim(timem)[1])     {
+
         it0 <- timem[i,]
+       
         
         eqit <- lapply(eq,function(l)edlagv(l,start=it0,end=it0,exonames=exonames))
+        
         eqit <- lapply(eqit,function(l) {
             parse(text=paste("bquote(",paste(deparse(l,width=500),collapse=""),")",sep=""))
         })
+        
+        
         eqmod <- lapply(eqit,function(l)eval(l,as.list(data)))
-
+       # browser()
+        
         eqs <- eqs.optim(eqmod,subtb)
         eqoy <- eqs$fn
         eqogy <- eqs$grad
         
-        x0 <- as.numeric(window(data[,subtb[,1]],start=it0,end=it0))
+        x0 <- as.numeric(window(lag(data[,subtb[,1]],-1),start=it0,end=it0))
+        ##Submit  lag as a starting value, since at current time the values might not exist
 
         
         fogs <- optim(par=log(x0),fn=mod.o,gr=mod.ograd,...)
-        res <- rbind(res,exp(fogs$par))
+        
+        ind <- as.numeric(window(indt,start=it0,end=it0))
+        ###If some values were not NA, leave them intact
+        fc <- exp(fogs$par)
+        cd <- data[ind,subtb[,1]]
+        if(sum(!is.na(cd))>0) {
+            fc[!is.na(cd)] <- cd[!is.na(cd)]
+        }
+        
+        data[ind,subtb[,1]] <- fc
+        res <- rbind(res,fc)
     }
     res <- ts(res,start=start,end=end,frequency=4)
     colnames(res) <- subtb[,1]
-    res
+    list(res=res,data=data)
 }
 
 eqs.optim <- function(eqmod,subtable) {
@@ -70,9 +88,22 @@ eviewstoR <-function(str,varnames) {
     res <- edlogv(eq[[1]],varnames=lnames)
     res
 }
-  
-fillstartend <- function(start,end) {
-    
+
+read.eviews <- function(file) {
+    ###Reads eviews equations output, strips
+    ###lines starting with @INNOV, and removes @IDENTITY
+    ss <-scan(file,what=character(),sep='\n',blank.lines.skip=TRUE,comment.char="'")
+    ss <- gsub("@INNOV.*","",ss)
+    ss <- gsub("@IDENTITY +","",ss)
+    ss <- ss[ss!=""]
+    ss <- gsub("[[].*[]]","",ss) ###Remove error terms in brackets
+   
+    ss <- gsub("[+-] *$","",ss) ### Remove trailing arithmetic signs at the end of the line
+    ss
+}
+
+qpadd <- function(start,end) {
+##Padd in quarters given start and end in terms c(year,quarter)
     q <- start[2]:4
     
     y <- rep(start[1],length(q))
@@ -88,9 +119,37 @@ fillstartend <- function(start,end) {
         y <- c(y,rep(end[1],length(eq)))
         q <- c(q,eq)
     }
-    cbind(y,q)
+    res <- cbind(y,q)
+    colnames(res) <- NULL
+    rownames(res) <- NULL
+    res
 }
 
+simplefc <- function(data,tb,ahead) {
+    require(tseries)
+    require(forecast)
+    
+    ff <- numeric()
+    for(nm in colnames(data)) {
+        trans <- tb$FT[tb$name==nm]
+        if(trans=="skip") {
+            res <- rep(data[dim(data)[1],nm],ahead)
+        }
+        else {
+            if(trans=="log") {
+                res <- forecast(auto.arima(log(na.omit(data[,nm]))),h=ahead)
+                res <- exp(res$mean)
+            }
+            else {
+                res <- forecast(auto.arima(na.omit(data[,nm])),h=ahead)
+                res <- res$mean
+            }
+        }
+        ff <- cbind(ff,res)
+    }
+    colnames(ff) <- colnames(data)
+    ff
+}
 plot.forecast <- function(x,fc,varn,labels) {
 
     ##Find the variables who do not have seasonality removed.
@@ -287,4 +346,64 @@ edlog <- function(expr) {
     
     
     return(expr)
+}
+
+
+produce.tb1 <- function(data) {
+    f <- list(expression((y_r_sa/lag(y_r_sa,-1)-1)*100),
+              expression(w_b_sa/lag(w_b_sa,-1)*100),
+              expression(w_b_sa),
+              expression((x_r_sa-m_r_sa)/y_r_sa),
+              expression((c_r_sa/lag(c_r_sa,-1)-1)*100),
+              expression((i_r_sa/lag(i_r_sa,-1)-1)*100),
+              expression((y_n_sa/lag(y_n_sa,-1)-1)*100)
+              )
+    nf <- c("BVP augimas, grandine susietos apimties augimas, proc.",
+            "Vidutinio mėnesinio bruto darbo užmokesčio indeksai, ankstesnis laikotarpis = 100",
+            "Vidutinis mėnesinis bruto darbo užmokestis, Lt",
+            "Prekių ir paslaugų balansas, proc. BVP",
+            "Vartojimo augimas, grandine susietos apimties augimas, proc.",
+            "Bendrojo pagrindinio kapitalo formavimo augimas, grandine susietos apimties augimas, proc.",
+            "BVP augimas to meto kainomis, proc.")
+    
+    tld <- data
+    tld <- cbind(qpadd(start(data),end(data)),tld)
+
+    colnames(tld) <- c("year","quarter",colnames(data))
+
+    agm <- recast(as.data.frame(tld),year~variable,mean,id.var=c("year","quarter"))
+    ags <- recast(as.data.frame(tld),year~variable,sum,id.var=c("year","quarter"))
+
+    agm <- ts(agm[,-1],start=start(data)[1])
+    ags <- ts(ags[,-1],start=start(data)[1]) ## Will not be used for the mooment
+    
+    rl <- lapply(f,eval,envir=as.list(agm))
+    res <- t(sapply(rl,window,start=2008,end=2012))
+    res <- data.frame(Rodiklis=nf,res)
+    names(res)[-1] <- 2008:2012
+    res
+}
+
+produce.form <- function(etb,prefix="") {
+
+    no <- dim(etb)[1]
+    nms <- paste(prefix,"egzo",1:no,"[]",sep="")
+    
+    col.fun <- function(col,nm) {
+        col <- prettyNum(col)
+        vals <- paste("<input name='",nm,"' value=",col," type='text' size='5'/>",sep="")
+        vals
+    }
+    cols <- sapply(etb[,-1],col.fun,nm=nms)
+    first <- paste(etb[,1],"<input name='",nms,"' value='",etb[,1],"' type='hidden'/>",sep="")
+    res <- data.frame(first,cols)
+
+    names(res) <- c("Rodiklis",names(etb)[-1])
+    res
+
+}
+
+todf <- function(x) {
+    data.frame(row=2:length(x)-1,variable=x[1],value=as.numeric(x[-1]))
+
 }

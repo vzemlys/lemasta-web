@@ -11,10 +11,10 @@ function showTooltip(x, y, contents) {
         }).appendTo("body").fadeIn(200);
     }
 
-    function show(arr,ind) {
+    function show(arr,ind,tabno) {
 	var previousPoint = null;
-
-	var plot=$.plot($("#placeholder"), 
+    
+	var plot=$.plot($("#placeholder"+tabno), 
 		[arr[ind]], 
 		{lines: {show: true },
 		 points: {show: true },
@@ -22,7 +22,7 @@ function showTooltip(x, y, contents) {
 		 xaxis: { mode: null, tickSize: 1, tickDecimals: 0} }
 		);
 	 var previousPoint = null;
-	 $("#placeholder").bind("plothover", function (event, pos, item) {
+	 $("#placeholder"+tabno).bind("plothover", function (event, pos, item) {
             if (item) {
                 if (previousPoint != item.datapoint) {
                     previousPoint = item.datapoint;
@@ -42,16 +42,17 @@ function showTooltip(x, y, contents) {
 
 
     }
-    function myfill(text) {
+    function myfill(text,tabno) {
 	var arr=text.split("\n");
 	var parr=preparr(arr);
 	//alert(parr);
-	$("#output").find("input").each(function(i) {
+	$("#output"+tabno).find("input[scen01]").each(function(i) {
+	//	    alert($(this).attr("scen01"))
 		    $(this).click(
 		    function(){
 		//	alert("I am here");
 		//	alert(parr[0]);
-			show(parr,i);
+			show(parr,i,tabno);
 		    	})
 		    });
     }
@@ -73,4 +74,19 @@ function showTooltip(x, y, contents) {
 	   }
 	return res;
     }
-
+function showResponse(xml, statusText)  { 
+    // for normal html responses, the first argument to the success callback 
+    // is the XMLHttpRequest object's responseText property 
+ 
+    // if the ajaxForm method was passed an Options Object with the dataType 
+    // property set to 'xml' then the first argument to the success callback 
+    // is the XMLHttpRequest object's responseXML property 
+ 
+    // if the ajaxForm method was passed an Options Object with the dataType 
+    // property set to 'json' then the first argument to the success callback 
+    // is the json data object returned by the server 
+    //alert(responseText) 
+    $("#output3").html($("tmp",xml).text());
+    $("#tabs").tabs('select',2);
+    window.scroll(0,0);
+} 
