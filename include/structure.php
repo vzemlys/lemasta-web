@@ -1,8 +1,8 @@
 <?
 function mainheader($title,$subtitle) {
 ?>
-   <div class="superHeader">
-    </div>
+   <!--<div class="superHeader">
+    </div>-->
 
     <div class="midHeader">
 	<h1 class="headerTitle" lang="la"><?echo $title?></h1>
