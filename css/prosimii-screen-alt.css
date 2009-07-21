@@ -141,3 +141,7 @@ dd {
 #fragment-4 {
     width: 600px;
 }
+
+#formtabs span {
+    font-size: 85%;
+}

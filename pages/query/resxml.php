@@ -1,21 +1,28 @@
 <?
 //$f = fopen("data.csv","r");
 
-$xml="<lemasta>";
+$f1=file_get_contents("../../R/form1.html");
 
+$xml="<lemasta>";
+$scennames=array("Bazinis scenarijus","Scenarijus 1","Scenarijus 2");
 for($i=1;$i<=3;$i++) {
     $dt=file_get_contents("../../R/data$i.csv");
     $ht=file_get_contents("../../R/ftable$i.html");
-    $xml=$xml."<scen0$i>";
+    $fm=file_get_contents("../../R/form$i.html");
+
+    $xml=$xml."<scenario>";
+    $xml=$xml."<number>$i</number>";
+    $scn=$scennames[$i-1];
+    $xml=$xml."<name>$scn</name>";
     $xml=$xml."<tb1>";
     $xml=$xml."<![CDATA[$ht]]>";
     $xml=$xml."</tb1>";
-    $xml=$xml."<csv>$dt</csv></scen0$i>";
+    $xml=$xml."<form><![CDATA[$fm]]></form>";
+    $xml=$xml."<csv>$dt</csv></scenario>";
 }
 
-$f1=file_get_contents("../../R/form1.html");
 
-$xml=$xml."<form1><![CDATA[$f1]]></form1></lemasta>";
+$xml=$xml."</lemasta>";
 
 file_put_contents("initial.xml",$xml);
 

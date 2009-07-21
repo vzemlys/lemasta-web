@@ -79,17 +79,22 @@ $(document).ready(function() {
 	    type: "GET",
 	    url: "pages/query/forecast.php",
 	    success: function(xml){
-	        $("#eform1cont").html($("form1",xml).text());
-	        var cdt=[];
-	        for(var j=1;j<=3;j++)  {
+		$("#scenchoice").html("");
+		var cdt=[];
+
+		cdt=jQuery.map($("scenario",xml),function(scen,no){
+		    fillscenario(scen);	
+    		    return $("csv",scen).text();
+		});
+	        /*for(var j=1;j<=3;j++)  {
 		    sc=$("scen0"+j,xml);		
 		    tb=$("tb1",sc).text();    
 		    $("#output"+j).html(tb);
 		    cdt.push($("csv",sc).text());
     
-		}
+	    }*/
 		var cd=prepare(cdt);
-		for(var j=1;j<=3;j++)  {
+		for(var j=1;j<=cdt.length;j++)  {
 		     myfill(cd,j);
 		}		
 	    }	
@@ -97,11 +102,12 @@ $(document).ready(function() {
 
     }
     $("#tabs").tabs();
+    $("#formtabs").tabs();
     var options= {
 	success: showResponse,
 	    dataType: "xml"
     };
-    $("#eform1").ajaxForm(options); 
+    $("#eform").ajaxForm(options); 
 });
 </script>
 <div id="header">
@@ -117,9 +123,9 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
     <div id="tabs">
 
 	 <ul>
-	    <li><a href="#fragment-1"><span>Bazinis scenarijus</span></a></li>
-	    <li><a href="#fragment-2"><span>Scenarijus 1</span></a></li>
-	    <li><a href="#fragment-3"><span>Scenarijus 2</span></a></li>
+	    <li><a href="#fragment-1"><span id="scenname1">Bazinis scenarijus</span></a></li>
+	    <li><a href="#fragment-2"><span id="scenname2">Scenarijus 1</span></a></li>
+	    <li><a href="#fragment-3"><span id="scenname3">Scenarijus 2</span></a></li>
 	    <li><a href="#fragment-4"><span>Palyginimas</span></a></li>
 	    <li><a href="#fragment-5"><span>Nustatymai</span></a></li>
 	</ul>
@@ -144,16 +150,33 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 	</div>
 
 	<div id="fragment-5">
-	   	    <form id="eform1" method="POST" action="pages/query/forecast.php">
+		 
+	    <form id="eform" method="POST" action="pages/query/forecast.php">  
+		<div id="formtabs">
+		  
+		    <ul>
+		      <li><a href="#frag-1"><span id="fscenname1">Bazinis scenarijus</span></a></li>
+		      <li><a href="#frag-2"><span id="fscenname2">Scenarijus 1</span></a></li>
+		      <li><a href="#frag-3"><span id="fscenname3">Scenarijus 2</span></a></li>
+		    </ul>
+		    <div id="frag-1">
+			<div id="eformcont1"></div>
+			</div>
+		    <div id="frag-2">
+			<div id="eformcont2"></div>
+			</div>
+		    <div id="frag-3">
+			<div id="eformcont3"></div>
+			</div>	
 
-		<div id="eform1cont">
+	
 		</div>
-
-		
+		<div id="scenchoice"> </div>
 		<input type='submit' value='Siųsti' id='submitegzo'/> 
 		<input name="arname" type="hidden" value="egzo"/>
-		<input name="nrows" type="hidden" value="13"/>
-
+		<input name="sarname" type="hidden" value="scen"/>
+    	   	<input name="nrows" type="hidden" value="13"/>
+			
 	    </form>
 	</div>
     </div>

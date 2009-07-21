@@ -176,5 +176,27 @@ function showResponse(xml, statusText)  {
     //alert(responseText) 
   //  $("#output3").html($("tmp",xml).text());
     $("#tabs").tabs('select',2);
+    
     window.scroll(0,0);
+  //  $("#scen3name").html("OJOJJ");
 } 
+
+function fillscenario(scen) {
+     
+     var id=$("number",scen).text();
+     var name=$("name",scen).text();
+     var tb=$("tb1",scen).text(); 
+
+     $("#output"+id).html(tb); //Fill out table data     
+     $("#scenname"+id).html(name); //Change tab name
+
+//Start filling form pages
+     var fr=$("form",scen).text();
+
+     $("#fscenname"+id).html(name);
+     var html="Scenarijaus pavadinimas <input name='scenname"+id+"'type='text' value='" + name+ "'/><br>";
+     html=html+fr;
+ 	
+     $("#eformcont"+id).html(html);
+     $("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" >'+ name + '</input>');	
+}
