@@ -80,23 +80,7 @@ $(document).ready(function() {
 	    url: "pages/query/forecast.php",
 	    success: function(xml){
 		$("#scenchoice").html("");
-		var cdt=[];
-
-		cdt=jQuery.map($("scenario",xml),function(scen,no){
-		    fillscenario(scen);	
-    		    return $("csv",scen).text();
-		});
-	        /*for(var j=1;j<=3;j++)  {
-		    sc=$("scen0"+j,xml);		
-		    tb=$("tb1",sc).text();    
-		    $("#output"+j).html(tb);
-		    cdt.push($("csv",sc).text());
-    
-	    }*/
-		var cd=prepare(cdt);
-		for(var j=1;j<=cdt.length;j++)  {
-		     myfill(cd,j);
-		}		
+		xmltocontent(xml);
 	    }	
 	});
 
@@ -105,7 +89,8 @@ $(document).ready(function() {
     $("#formtabs").tabs();
     var options= {
 	success: showResponse,
-	    dataType: "xml"
+	error: showError,
+	dataType: "xml"
     };
     $("#eform").ajaxForm(options); 
 });
@@ -175,7 +160,7 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 		<input type='submit' value='Siųsti' id='submitegzo'/> 
 		<input name="arname" type="hidden" value="egzo"/>
 		<input name="sarname" type="hidden" value="scen"/>
-    	   	<input name="nrows" type="hidden" value="13"/>
+    	   	<input name="nrows" type="hidden" value="10"/>
 			
 	    </form>
 	</div>

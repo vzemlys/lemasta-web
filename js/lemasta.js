@@ -21,7 +21,7 @@ function show(sob) {
     var choiceContainer = $("#choices");
     choiceContainer.html("Rodyti:");
     fplot.forEach(function(x, idx) {
-        choiceContainer.append('<input type="checkbox" scen="' + idx + '" checked="checked" > Scenarijus ' + (idx+1)  + '</input>');
+        choiceContainer.append('<input type="checkbox" scen="' + idx + '" checked="checked" > ' + sob.labels[idx]  + '</input>');
     });
 
     choiceContainer.find("input").click(function() {
@@ -87,12 +87,15 @@ function prepare(csv) {
 	return block.split("\t");	
     }
     tmp=csv.map(function(ind) {
-		    res=ind.split("\n");
+		    res=ind.csv.split("\n");
 		    res=res.map(splittab);
 		    return res;
 		});
     var novar=tmp[0].length;
     var years=tmp[0][0].slice(1);
+    var snames=csv.map(function(ind){
+		return ind.name;
+	    })
     var res=[];
     for(var j=1;j<novar-1;j++) {
 	
@@ -103,7 +106,8 @@ function prepare(csv) {
 
 	res.push({title: tmp[0][j][0],
 		  years: years,
-		  table: table
+		  table: table,
+		  labels: snames   
 		});
     }
     return res;
@@ -119,7 +123,7 @@ function toflot(sob) {
 	    data.push([time[j],parseFloat(sob.table[i][j])]);
 	}
 	res.push({
-	    label: "scen"+(i+1),
+	    label: sob.labels[i],
 	    color: i,
 	    data: data
 	})
@@ -142,7 +146,7 @@ function ctable(sob) {
 		res=val.map(function(col){
 		    return "<td align='right'>"+parseFloat(col).toFixed(3)+"</td>";
     		    })
-		scen="<td> Scenarijus"+(i+1)+"</td>";
+		scen="<td>"+sob.labels[i]+"</td>";
 		return "<tr>"+scen+res.join(" ")+"</tr>";
 	    }) 
     	
@@ -174,12 +178,16 @@ function showResponse(xml, statusText)  {
     // property set to 'json' then the first argument to the success callback 
     // is the json data object returned by the server 
     //alert(responseText) 
-  //  $("#output3").html($("tmp",xml).text());
-    $("#tabs").tabs('select',2);
-    
-    window.scroll(0,0);
+//    alert(statusText);
+  //  $("#tabs").tabs('select',2);
+    xmltocontent(xml);
+    //window.scroll(0,0);
   //  $("#scen3name").html("OJOJJ");
 } 
+
+function showError(XMLHttpRequest, textStatus, errorThrown) {
+    alert(XMLHttpRequest.responseText);
+}
 
 function fillscenario(scen) {
      
@@ -189,14 +197,31 @@ function fillscenario(scen) {
 
      $("#output"+id).html(tb); //Fill out table data     
      $("#scenname"+id).html(name); //Change tab name
+     $("#fscenname"+id).html(name); //Change scenario tab name
 
 //Start filling form pages
-     var fr=$("form",scen).text();
-
-     $("#fscenname"+id).html(name);
-     var html="Scenarijaus pavadinimas <input name='scenname"+id+"'type='text' value='" + name+ "'/><br>";
-     html=html+fr;
+     var fr=$("form",scen);
+     if(fr.length!=0) {
+	fr=fr.text();
+	var html="Scenarijaus pavadinimas <input name='scenname"+id+"'type='text' value='" + name+ "'/><br>";
+	html=html+fr;
  	
-     $("#eformcont"+id).html(html);
-     $("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" >'+ name + '</input>');	
+	$("#eformcont"+id).html(html);
+	$("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" value="'+id+'">'+ name + '</input>');	
+     }
+}
+
+function xmltocontent(xml) {
+    var cdt=[];
+    cdt=jQuery.map($("scenario",xml),function(scen,no){
+	    fillscenario(scen);	
+	    return {csv: $("csv",scen).text(),
+		    name: $("name",scen).text(), 
+		    id : $("number",scen).text()
+		    };
+	    });
+    var cd=prepare(cdt);
+    for(var j=1;j<=cdt.length;j++)  {
+	myfill(cd,j);
+    }		
 }
