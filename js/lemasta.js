@@ -15,7 +15,6 @@ function showTooltip(x, y, contents) {
 function show(sob) {
     var previousPoint = null;
     fplot=toflot(sob);
-    
     $("#tabs").tabs('select',3);
     $("#comparison").html(ctable(sob));
     
@@ -40,11 +39,10 @@ function plotAccordingToChoices(fplot) {
 	    key = parseInt(key);
             data.push(fplot[key]);
         });
-
+	
 	if (data.length > 0) {
-	    
 	    var plot=$.plot($("#placeholder"), 
-		    data, 
+		    data,
 		    {lines: {show: true },
 		    points: {show: true },
 		    grid: { hoverable: true, clickable: true},
@@ -59,7 +57,6 @@ function plotAccordingToChoices(fplot) {
 		    $("#tooltip").remove();
 		    var    y = item.datapoint[1];
 		    y=parseFloat(y).toFixed(2);
-		    // alert(item.datapoint[1]);
 		    showTooltip(item.pageX, item.pageY, y);
 		}
 	    }
@@ -68,12 +65,14 @@ function plotAccordingToChoices(fplot) {
 		previousPoint = null;            
 	    }
 	});
+    }
+    else {
+	$("#placeholder").html("");
+    }
 
-        }
 }
 
 function myfill(cdata,tabno) {
-    
     $("#output"+tabno).find("input[scen0"+tabno+"]").each(function(i) {
 	    $(this).click(
 		function(){
@@ -84,20 +83,17 @@ function myfill(cdata,tabno) {
 
 function prepare(csv) {
     var tmp=[];
-
     function splittab(block) {
 	return block.split("\t");	
     }
-    
     tmp=csv.map(function(ind) {
 		    res=ind.split("\n");
 		    res=res.map(splittab);
 		    return res;
 		});
-      
-    novar=tmp[0].length;
-    years=tmp[0][0].slice(1);
-    res=[];
+    var novar=tmp[0].length;
+    var years=tmp[0][0].slice(1);
+    var res=[];
     for(var j=1;j<novar-1;j++) {
 	
 	var table=[];
@@ -115,11 +111,10 @@ function prepare(csv) {
 
 function toflot(sob) {
     var noscen=sob.table.length;
-    res=[];
+    var res=[];
     var time=[2008,2009,2010,2011,2012];
-
     for(i=0;i<noscen;i++) {
-	data=[];
+	var data=[];
     	for(j=0;j<sob.table[i].length;j++) {
 	    data.push([time[j],parseFloat(sob.table[i][j])]);
 	}
@@ -133,15 +128,17 @@ function toflot(sob) {
 }
 
 function ctable(sob) {
-    html="";
+    var html="";
     html=html+"<h2 class='center'>"+sob.title+"</h2>";
     html=html+"<table border=1 cellpadding=2 class='center'>";
     html=html+"<tr><th>Scenarijus</th>";
-    header=sob.years.map(function(val) {
+ 
+    var header=sob.years.map(function(val) {
 		return "<th>"+val+"</th>";
 	    })
+    
     html=html+header.join(" ")+"</tr>\n";
-    table=sob.table.map(function(val,i){
+    var table=sob.table.map(function(val,i){
 		res=val.map(function(col){
 		    return "<td align='right'>"+parseFloat(col).toFixed(3)+"</td>";
     		    })

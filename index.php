@@ -14,13 +14,61 @@
 ?>
 <body>
 
-<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>          
-<script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
-<script type="text/javascript" src="js/jquery.form.js"></script>
-<script type="text/javascript" src="js/flot/jquery.flot.js"></script>      
-<script type="text/javascript" src="js/lemasta.js"></script>      
+<script language="javascript" type="text/javascript" src="js/jquery-1.3.2.min.js"></script>          
+<script language="javascript" type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery.form.js"></script>
+<script language="javascript" type="text/javascript" src="js/flot/excanvas.js"></script>      
 
-<script type="text/javascript">  
+<script language="javascript" type="text/javascript" src="js/flot/jquery.flot.js"></script>      
+
+<script language="javascript" type="text/javascript" src="js/lemasta.js"></script>      
+
+<script id="source" language="javascript" type="text/javascript">  
+//This prototype is provided by the Mozilla foundation and
+//is distributed under the MIT license.
+//http://www.ibiblio.org/pub/Linux/LICENSES/mit.license
+    
+if (!Array.prototype.map)
+{
+  Array.prototype.map = function(fun /*, thisp*/)
+  {
+    var len = this.length;
+    if (typeof fun != "function")
+      throw new TypeError();
+
+    var res = new Array(len);
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++)
+    {
+      if (i in this)
+        res[i] = fun.call(thisp, this[i], i, this);
+    }
+
+    return res;
+  };
+} 
+
+//This prototype is provided by the Mozilla foundation and
+//is distributed under the MIT license.
+//http://www.ibiblio.org/pub/Linux/LICENSES/mit.license
+
+if (!Array.prototype.forEach)
+{
+  Array.prototype.forEach = function(fun /*, thisp*/)
+  {
+    var len = this.length;
+    if (typeof fun != "function")
+      throw new TypeError();
+
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++)
+    {
+      if (i in this)
+        fun.call(thisp, this[i], i, this);
+    }
+  };
+}
+
 var ajaxResponse=null;
 $(document).ready(function() {
     var ajaxResponse=null;
@@ -41,7 +89,6 @@ $(document).ready(function() {
     
 		}
 		var cd=prepare(cdt);
-	//	alert(cd.length);
 		for(var j=1;j<=3;j++)  {
 		     myfill(cd,j);
 		}		
@@ -54,13 +101,9 @@ $(document).ready(function() {
 	success: showResponse,
 	    dataType: "xml"
     };
-    $("#eform1").ajaxForm(options);
-
+    $("#eform1").ajaxForm(options); 
 });
-
-
 </script>
-
 <div id="header">
 <? 
 mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
@@ -83,7 +126,6 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 
 	<div id="fragment-1">
 	   <div id="output1"></div>
-<!--	   <div id ="placeholder1" style="width:600px;height:300px;"></div>-->
 	</div>
 	<div id="fragment-2">
 	   <div id="output2"></div>
@@ -116,8 +158,12 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 	</div>
     </div>
 
+
 </div> 
 <!-- Pagrindinio turinio pabaiga -->
+
+
+
 </body>
 
 </html>

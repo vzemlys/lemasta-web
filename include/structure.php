@@ -52,11 +52,11 @@ function head($header,$lev) {
     <meta name="generator" content="Vaidotas Zemlys" />
 
 
-    <link rel="stylesheet" type="text/css"
+   <link rel="stylesheet" type="text/css"
 href=<?level($lev,"css/prosimii-screen-alt.css")?> />
 
    <link rel="stylesheet" type="text/css"
-href=<?level($lev,"css/smoothness/jquery-ui-1.7.2.custom.css")?>  />
+href=<?level($lev,"css/smoothness/jquery-ui-1.7.2.custom.css")?>  /> 
 
 
     <title><?echo $header?></title>
