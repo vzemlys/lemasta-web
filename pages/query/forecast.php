@@ -6,8 +6,8 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
     chdir("../temp/");
     delfile("*.png");
     delfile("*.R");
-   // delfile("*.html");
- //   delfile("*.csv");
+    delfile("*.html");
+    delfile("*.csv");
     delfile("*.txt");
 
     
@@ -28,7 +28,7 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
         $rcode=$rcode."source('../../R/code.R')\n";
 	$rcode=$rcode."load('../../R/lemasta.RData')\n";
 
-/*	foreach($check as $sno) {
+	foreach($check as $sno) {
 	    
 	    $str="";
 	    for($i=1; $i<=$nr; $i++) {
@@ -59,7 +59,7 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
 
 
 	exec("$R_command -q --no-save < $cfn > result 2>&1");
- */
+ 
 	$xml="<lemasta>";
 	foreach($check as $i) {
 	    $dt=file_get_contents("data$i.csv");

@@ -69,16 +69,6 @@ function plotAccordingToChoices(fplot) {
     else {
 	$("#placeholder").html("");
     }
-
-}
-
-function myfill(cdata,tabno) {
-    $("#output"+tabno).find("input[scen0"+tabno+"]").each(function(i) {
-	    $(this).click(
-		function(){
-		show(cdata[i]);
-		})
-	    });
 }
 
 function prepare(csv) {
@@ -153,39 +143,19 @@ function ctable(sob) {
     html=html+table.join("\n")+"</table>";
     return html;
 }
-function preparr(arr) {
-    var time=[2007,2008,2009,2010,2011,2012];
-    var res=[];
-    for (var i=1; i<arr.length-1; i++) {
-	var row=arr[i].split("\t");
-	var temp=[];
-	for(var j=1;j<row.length; j++) {
-	    temp.push([time[j],row[j]]);
-	}
-	res.push(temp);
-    }
-    return res;
-}
+
+function showRequest(formData, jqForm, options) { 
+    $.blockUI({message: "<h1><img src='css/bigrotation2.gif'>Palauk skaičiuojam</h1>"});
+    return true; 
+} 
+
 function showResponse(xml, statusText)  { 
-    // for normal html responses, the first argument to the success callback 
-    // is the XMLHttpRequest object's responseText property 
-
-    // if the ajaxForm method was passed an Options Object with the dataType 
-    // property set to 'xml' then the first argument to the success callback 
-    // is the XMLHttpRequest object's responseXML property 
-
-    // if the ajaxForm method was passed an Options Object with the dataType 
-    // property set to 'json' then the first argument to the success callback 
-    // is the json data object returned by the server 
-    //alert(responseText) 
-//    alert(statusText);
-  //  $("#tabs").tabs('select',2);
+    $.unblockUI();
     xmltocontent(xml);
-    //window.scroll(0,0);
-  //  $("#scen3name").html("OJOJJ");
 } 
 
 function showError(XMLHttpRequest, textStatus, errorThrown) {
+    $.unblockUI();
     alert(XMLHttpRequest.responseText);
 }
 
@@ -220,8 +190,16 @@ function xmltocontent(xml) {
 		    id : $("number",scen).text()
 		    };
 	    });
-    var cd=prepare(cdt);
-    for(var j=1;j<=cdt.length;j++)  {
-	myfill(cd,j);
-    }		
+    if(!window.cdt) {
+	window.cdt=cdt;	
+    }
+    else {
+	jQuery.each(cdt,function(){
+		var i=parseInt(this.id)-1;
+		window.cdt[i]=this;
+    		});	
+	$("#tabs").tabs('select',parseInt(cdt[0].id)-1);
+	window.scroll(0,0);
+    }
+    window.cd=prepare(window.cdt);
 }

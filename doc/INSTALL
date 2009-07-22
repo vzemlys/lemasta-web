@@ -1,2 +1,2 @@
 1. Išarchyvuoti į katalogą, kuris pasiekiamas apache.
-2. Nustatyti katalogo temp teises, kad į jį galėtų rašyti apache procesas
+2. Nustatyti katalogo pages/temp teises, kad į jį galėtų rašyti apache procesas
