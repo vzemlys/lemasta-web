@@ -93,7 +93,10 @@ $(document).ready(function() {
 	dataType: "xml"
     };
     $("#eform").ajaxForm(options);
-
+    $('#OK').click(function() { 
+            $.unblockUI(); 
+            return false; 
+        }); 
 });
 </script>
 
@@ -146,7 +149,10 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 </div> 
 <!-- Pagrindinio turinio pabaiga -->
 
-
+<div id="question" style="display:none; cursor: default"> 
+        <h1 id="ajaxErrorMessage">Įvyko klaida</h1> 
+        <input type="button" id="OK" value="OK" /> 
+</div> 
 
 </body>
 

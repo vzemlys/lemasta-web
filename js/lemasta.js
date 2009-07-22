@@ -156,7 +156,9 @@ function showResponse(xml, statusText)  {
 
 function showError(XMLHttpRequest, textStatus, errorThrown) {
     $.unblockUI();
-    alert(XMLHttpRequest.responseText);
+    $("#ajaxErrorMessage").html(XMLHttpRequest.responseText)
+    $.blockUI({ message: $('#question'),timeout: 1500 }); 
+    //alert(XMLHttpRequest.responseText);
 }
 
 function fillscenario(scen) {
