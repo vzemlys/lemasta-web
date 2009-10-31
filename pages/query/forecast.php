@@ -46,10 +46,11 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
 
 		 }
 	     }
-	     $rcode=$rcode."bb <- ldply(strsplit(strsplit('$str','\\n')[[1]],';'),todf)\n";
-	     $rcode=$rcode."cc <- cast(bb,variable~row)\n";
-	     $rcode=$rcode."print(cc)\n";
-	     $rcode=$rcode."doforecast(cc,$sno)\n";
+	    $rcode=$rcode."bb <- ldply(strsplit(strsplit('$str','\\n')[[1]],';'),todf)\n";
+	    $rcode=$rcode."print(bb)\n";
+            $rcode=$rcode."cc <- cast(bb,variable~row)\n";
+	    $rcode=$rcode."print(cc)\n";
+	    $rcode=$rcode."doforecast(cc,$sno)\n";
 
 	}
 	$fp=fopen($cfn,"w");

@@ -142,7 +142,7 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 		<input type='submit' value='Siųsti' id='submitegzo'/> 
 		<input name="arname" type="hidden" value="egzo"/>
 		<input name="sarname" type="hidden" value="scen"/>
-    	   	<input name="nrows" type="hidden" value="10"/>
+    	   	<input name="nrows" type="hidden" value="7"/>
 	    </form>
 	</div>
     </div>

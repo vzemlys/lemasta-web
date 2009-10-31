@@ -106,7 +106,7 @@ function prepare(csv) {
 function toflot(sob) {
     var noscen=sob.table.length;
     var res=[];
-    var time=[2008,2009,2010,2011,2012];
+    var time=[2006,2007,2008,2009,2010,2011];
     for(i=0;i<noscen;i++) {
 	var data=[];
     	for(j=0;j<sob.table[i].length;j++) {

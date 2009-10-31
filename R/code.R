@@ -1,22 +1,11 @@
-require(tseries)
-require(lattice)
-require(nleqslv)
 
-eqforecast <- function(start,end,eq,endoexo,data,leave=TRUE,...) {
+
+eqforecast <- function(start,end,eq,endoexo,data,leave=TRUE,use.jacobian=TRUE,...) {
     exonames <- as.character(endoexo$name[endoexo$exo=="Exog"])
 
     noendog <- table(endoexo$exo)["Endog"]
     subtb <- cbind(as.character(endoexo$name[endoexo$exo=="Endog"]),paste("y[",1:noendog,"]",sep=""))
     
-    mod.o <- function(y) {
-        as.numeric(eval(eqoy,list(y=y)))
-    }
-
-    mod.ograd <- function(y) {
-        res <- sapply(eqogy,function(l)as.numeric(eval(l,list(y=y))))
-        res
-    }
-
     mod.fn <- function(x) {
         sapply(eqosy,function(l)as.numeric(eval(l,list(y=x))))
     }
@@ -42,43 +31,24 @@ eqforecast <- function(start,end,eq,endoexo,data,leave=TRUE,...) {
         
         
         eqmod <- lapply(eqit,function(l)eval(l,as.list(data)))
-       # browser()
-        
-       # eqs <- eqs.optim(eqmod,subtb)
-       # eqoy <- eqs$fn
-       # eqogy <- eqs$grad
 
-        eqq <- eqs.nleqslv(eqmod,subtb)
+        eqq <- eqs.nleqslv(eqmod,subtb,use.jacobian=use.jacobian)
         
         eqosy <- eqq$fn
         eqosgy <- eqq$grad
 
-        
-        
-        #browser()
         x0 <- as.numeric(window(lag(data[,subtb[,1]],-1),start=it0,end=it0))
-        ##Submit  lag as a starting value, since at current time the values might not exist
-        
-        
-        #fogs <- optim(par=log(x0),fn=mod.o,gr=mod.ograd,...)
-        #fogs <- optim(par=log(x0),fn=mod.o,method="Nelder-Mead")
 
-        #fogs <- optim(par=x0,fn=mod.o,method="Nelder-Mead")
-        
-        #fogs <- optim(par=fogs$par,fn=mod.o,...)
 
-        fogs <- nleqslv(x0,mod.fn,jac=mod.jac)
-        fogs$par <- fogs$x
-
-        #fogs <- BBsolve(x0,mod.fn)
-        
-        #browser()
+        if(use.jacobian)    
+          fogs <- nleqslv(x0,mod.fn,jac=mod.jac,...)
+        else
+          fogs <- nleqslv(x0,mod.fn,...)
+     
         ind <- as.numeric(window(indt,start=it0,end=it0))
         ###If some values were not NA, leave them intact
-        
-        
-        #fc <- exp(fogs$par)
-        fc <- fogs$par
+      
+        fc <- fogs$x
         if(leave) {
             cd <- data[ind,subtb[,1]]
             if(sum(!is.na(cd))>0) {
@@ -94,32 +64,20 @@ eqforecast <- function(start,end,eq,endoexo,data,leave=TRUE,...) {
     list(res=res,data=data)
 }
 
-eqs.nleqslv <- function(eqmod,subtable) {
-  
-    eqog <- lapply(subtable[,1],function(l)lapply(eqmod,function(ll,nm=l)D(ll,name=nm)))
-    
+eqs.nleqslv <- function(eqmod,subtable,use.jacobian=TRUE) {
+
     eqoy <-lapply(eqmod,function(l)subvars(l,subtable))
-    eqogy <- lapply(eqog,function(l)lapply(l,function(ll)subvars(ll,subtable)))
+
+    if(use.jacobian) {
+        eqog <- lapply(subtable[,1],function(l)lapply(eqmod,function(ll,nm=l)D(ll,name=nm)))
+    
+
+        eqogy <- lapply(eqog,function(l)lapply(l,function(ll)subvars(ll,subtable)))
+    }
+    else
+      eqogy <- NULL
+    
     list(fn=eqoy,grad=eqogy)
-}
-
-eqs.optim <- function(eqmod,subtable) {
-    eqo <- sapply(eqmod,function(l) {
-        aa <- paste(deparse(l,wid=500),collapse="")
-        paste("(",aa,")^2",sep="")
-    })
-
-    eqo <- parse(text=paste(eqo,collapse="+"))
-
-    eqo <- subvars(eqo[[1]],cbind(subtable[,1],subtable[,1]),make.exp=TRUE)
-
-    eqog <- lapply(subtable[,1],function(l)D(eqo,name=l))
-
-    eqoy <- subvars(eqo,subtable)
-    eqogy <-lapply(eqog,function(l)subvars(l,subtable))
-
-    list(fn=eqoy,grad=eqogy)
-
 }
 
 eviewstoR <-function(str,varnames) {
@@ -261,6 +219,14 @@ edlogv <- function(expr,varnames) {
                 ie <- deparse(edlogv(expr[[2]],varnames))
                 nol <- deparse(expr[[4]])
                 e <- paste("log(",ie,")-lag(log(",ie,"),-",nol,")",sep="")
+                nn <- as.numeric(deparse(expr[[3]]))
+                if(nn>0) {
+                    for(i in 1:nn) {
+                        ie <- e
+                        e <- paste(ie,"-lag(",ie,",-1)",sep="")
+                    }
+                }
+                  
                 return(parse(text=e)[[1]])
             }
             else {
@@ -391,49 +357,152 @@ edlog <- function(expr) {
     return(expr)
 }
 
+q2y.fun <- function(data,fun.aggregate=sum)  {
+     tld <- data
+     tld <- cbind(qpadd(start(data),end(data)),tld)
+     colnames(tld) <- c("year","quarter",colnames(data))
 
-produce.tb1 <- function(data) {
-    f <- list(expression((y_r_sa/lag(y_r_sa,-1)-1)*100),
-              expression(w_b_sa/lag(w_b_sa,-1)*100),
-              expression(w_b_sa),
-              expression((x_r_sa-m_r_sa)/y_r_sa),
-              expression((c_r_sa/lag(c_r_sa,-1)-1)*100),
-              expression((i_r_sa/lag(i_r_sa,-1)-1)*100),
-              expression((y_n_sa/lag(y_n_sa,-1)-1)*100)
-              )
-    nf <- c("BVP augimas, grandine susietos apimties augimas, proc.",
-            "Vidutinio mėnesinio bruto darbo užmokesčio indeksai, ankstesnis laikotarpis = 100",
-            "Vidutinis mėnesinis bruto darbo užmokestis, Lt",
-            "Prekių ir paslaugų balansas, proc. BVP",
-            "Vartojimo augimas, grandine susietos apimties augimas, proc.",
-            "Bendrojo pagrindinio kapitalo formavimo augimas, grandine susietos apimties augimas, proc.",
-            "BVP augimas to meto kainomis, proc.")
+     ag <- recast(as.data.frame(tld),year~variable,fun.aggregate=fun.aggregate,id.var=c("year","quarter"))
+     ts(ag[,-1],start=start(data)[1])
+}
+
+q2y.stream <- function(data) {
+     q2y.fun(data)
+}
+
+q2y.index <- function(data) {
+    q2y.fun(data,function(x)x[length(x)])
+}
+
+
+
+q2y.meta <- function(data,meta) {
     
-    tld <- data
-    tld <- cbind(qpadd(start(data),end(data)),tld)
+    q2s <- q2y.stream(data[,as.character(meta$Name[meta$Type=="stream"]),drop=FALSE])
+    q2i <- q2y.index(data[,as.character(meta$Name[meta$Type=="index"]),drop=FALSE])
 
-    colnames(tld) <- c("year","quarter",colnames(data))
+    lydt <- cbind(q2s,q2i)
+    colnames(lydt) <- c(colnames(q2s),colnames(q2i))
+    lydt
+}
 
-    agm <- recast(as.data.frame(tld),year~variable,mean,id.var=c("year","quarter"))
-    ags <- recast(as.data.frame(tld),year~variable,sum,id.var=c("year","quarter"))
+y2q <- function(data,fun.expand) {
+    res <- apply(data,2,function(x)sapply(x,fun.expand))
+    if(ncol(data)==1) {
+        res <- matrix(res,ncol=1)
+        colnames(res) <- colnames(data)
+    }
+    ts(res,start=c(start(data),1),frequency=4)
+}
 
-    agm <- ts(agm[,-1],start=start(data)[1])
-    ags <- ts(ags[,-1],start=start(data)[1]) ## Will not be used for the mooment
+y2q.stream <- function(data) {
+    y2q(data,function(x)rep(x/4,4))
+}
+
+y2q.index <- function(data) { 
+    y2q(data,function(x)c(NA,NA,NA,x))
+}
+
+y2q.meta <- function(data,meta) {
     
-    rl <- lapply(f,eval,envir=as.list(agm))
-    res <- t(sapply(rl,window,start=2008,end=2012))
-    res <- data.frame(Rodiklis=nf,res)
-    names(res)[-1] <- 2008:2012
+    y2s <- y2q.stream(data[,as.character(meta$Name[meta$Type=="stream"]),drop=FALSE])
+    y2i <- y2q.index(data[,as.character(meta$Name[meta$Type=="index"]),drop=FALSE])
+
+    lydt <- cbind(y2s,y2i)
+    colnames(lydt) <- c(colnames(y2s),colnames(y2i))
+    lydt
+}
+
+introduce.exo <- function(x,data,meta,start=c(2009,2)) {
+    
+    ee <- end(x)
+    if(start[2]!=1) {
+        si <- start
+        ss <- c(start[1],1)
+    }
+    st <- si
+    tmp <- foreach(l=as.list(x),nm=colnames(x)) %do% {
+        if(meta[meta$Name==nm,"Type"]=="stream")
+          st <- ss
+        else
+          st <- si
+        
+        window(data[,nm],start=st,end=ee) <- window(l,start=st,end=ee)
+        fillna <- na.approx(data[,nm])
+        window(data[,nm],start=start(fillna)) <- fillna
+       
+    }
+    data
+}
+
+inverse.tb <- function(x,meta) {
+    #x turi būti lentelė su stulpeliu rodiklis, kuriame yra pavadinimai
+    #atitinkantys meta stulpelio rodiklis pavadinimus.
+    #kituose stulpeliuose turi būti metiniai duomenys.
+    #meta turi turėti stulpelius rodiklis, pavadinimas ir inverse
+    #rezultatas bus metinė laiko eilutė kurioje vienetai bus
+    #tokie patys kaip ir originaliuose duomenyse.
+
+    years <- as.numeric(colnames(x)[-1])
+
+    x <- x[match(as.character(meta$Rodiklis),as.character(x$Rodiklis)),]
+    nm <- as.character(meta$Name)
+
+    tt <- ts(t(x[,-1]),start=years[1])
+    colnames(tt) <- nm
+           
+    formulas <- as.character(meta$Inverse)
+    
+    level <- foreach(l=formulas) %do% eval(parse(text=l),envir=as.list(tt))
+
+    res <- ts(sapply(level,function(x)x),start=start(tt))
+    colnames(res) <- nm
     res
 }
 
-csvhtpair <- function(res,suffix,cssattr="varno") {
+produce.tb <- function(x,meta,years=2006:2011,gdpshare=NULL){
+   
+    formulas <-as.character(meta[,2])
+    fnames <- as.character(meta[,1])
+      
+    years <- min(years):max(years)
+  
+    level <- foreach(l=formulas) %do% eval(parse(text=l),envir=as.list(x))
+
+    growth <- foreach(el=level) %do% { (el/lag(el,-1)-1)*100}
+
+    if(!is.null(gdpshare)) {
+        no <- which(formulas==gdpshare)
+        gdp <- level[[no]]
+        gdpshare <- foreach(el=level) %do% {(el/gdp)*100 }
+    }
+    
+
+    res <- list(level=level,growth=growth)
+    res$gdpshare <- gdpshare
+
+    nmr <- names(res)
+    
+    res <- foreach(el=res) %do% {
+        ll <- t(sapply(el,window,start=min(years),end=max(years)))
+        dt <- data.frame(Rodiklis=fnames,ll)
+        names(dt)[-1] <- years
+        dt
+    }
+    
+    names(res) <- nmr
+
+    res
+    
+}
+
+csvhtpair <- function(res,suffix,cssattr="varno",catalogue="") {
 ##cssattr is very important, since it is used in javascript code
 ##to determine which variable is being compared
     
     require(xtable)
-    dtname <- paste("data",suffix,".csv",sep="")
-    htname <- paste("ftable",suffix,".html",sep="")
+    dtname <- paste(catalogue,"data",suffix,".csv",sep="")
+    htname <- paste(catalogue,"ftable",suffix,".html",sep="")
     write.table(res,file=dtname,row.names=FALSE,quote=FALSE,sep="\t")
 
     ids <- 1:dim(res)[1]-1
@@ -445,19 +514,32 @@ csvhtpair <- function(res,suffix,cssattr="varno") {
     print(xtable(hres),type="html",include.rows=FALSE,file=htname,html.table.attributes='border="1" id="table1",cellpading="2"',sanitize.text.function=function(x)x)
 
 }
-produce.form <- function(etb,prefix="") {
+
+produce.form <- function(etb,start=2009,prefix="") {
 
     no <- dim(etb)[1]
     nms <- paste(prefix,"egzo",1:no,"[]",sep="")
+    years <- as.numeric(colnames(etb)[-1])
+
+    shy <- as.character(years[years<start])
+    wry <- as.character(years[years>=start])
     
-    col.fun <- function(col,nm) {
+    write.col.fun <- function(col,nm) {
         col <- prettyNum(round(col,2))
         vals <- paste("<input name='",nm,"' value=",col," type='text' size='5'/>",sep="")
         vals
     }
-    cols <- sapply(etb[,-1],col.fun,nm=nms)
+    show.col.fun <- function(col,nm) {
+        col <- prettyNum(round(col,2))
+        vals <- paste(col,"<input name='",nm,"' value=",col," type='hidden'/>",sep="")
+        vals
+    }
+
+    scols <- sapply(etb[,shy],show.col.fun,nm=nms)
+    wcols <- sapply(etb[,wry],write.col.fun,nm=nms)
+    
     first <- paste(etb[,1],"<input name='",nms,"' value='",etb[,1],"' type='hidden'/>",sep="")
-    res <- data.frame(first,cols)
+    res <- data.frame(first,scols,wcols)
 
     names(res) <- c("Rodiklis",names(etb)[-1])
     res
@@ -469,9 +551,24 @@ todf <- function(x) {
 
 }
 
-doforecast <- function(x,sceno) {
-    ftry <- eqforecast(start=c(2009,1),end=c(2012,4),eqR,ee,data=ladt,lower=lower,upper=upper,method="L-BFGS-B",control=list(trace=1,maxit=50,factr=1e-3,pgtol=1e-8))
-    res <- produce.tb1(ftry$data)
+doforecast <- function(x,sceno,years=2006:2011) {
+    require(tseries)
+    require(nleqslv)
+    require(plyr)
+    require(reshape)
+    require(foreach)
+
+    colnames(x) <- c("Rodiklis",years)
     
-    csvhtpair(res,sceno);
+    scy <- inverse.tb(x,exo2y)
+    scq <- y2q.meta(scy,exo2y)
+    dd <- introduce.exo(scq,ladt,exo2y)
+    
+    ftry <- eqforecast(start=c(2009,1),end=c(2011,4),eqR,ee,data=dd,leave=TRUE,use.jacobian=TRUE,control=list(ftol=1e-3))
+
+    flydt <- q2y.meta(ftry$data,q2y)
+    tbreal1 <- produce.tb(flydt,mreal,years=years,gdpshare=as.character(mreal[1,2]))
+    tbnom1 <- produce.tb(flydt,mnom,years=years,as.character(mnom[1,2]))
+    
+    csvhtpair(tbreal1$growth,sceno);
 }
