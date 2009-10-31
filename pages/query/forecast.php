@@ -58,8 +58,11 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
 	fclose($fp);
 
 
-	exec("$R_command -q --no-save < $cfn > result 2>&1");
- 
+//	exec("$R_command -q --no-save < $cfn > result 2>&1");
+	
+	exec("$R_command CMD BATCH $cfn");
+
+
 	$xml="<lemasta>";
 	foreach($check as $i) {
 	    $dt=file_get_contents("data$i.csv");
