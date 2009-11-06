@@ -112,21 +112,14 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 <div id="main-copy"> 
     <div id="tabs">
 	 <ul>
-	    <li><a href="#fragment-1"><span id="scenname1">Bazinis scenarijus</span></a></li>
-	    <li><a href="#fragment-2"><span id="scenname2">Scenarijus 1</span></a></li>
-	    <li><a href="#fragment-3"><span id="scenname3">Scenarijus 2</span></a></li>
-	    <li><a href="#fragment-4"><span>Palyginimas</span></a></li>
-	    <li><a href="#fragment-5"><span>Nustatymai</span></a></li>
+	    <li><a href="#fragment-1"><span>Nustatymai</span></a></li>
+
+	    <li><a href="#fragment-2"><span id="scenname1">Scenarijus 1</span></a></li>
+	    <li><a href="#fragment-3"><span id="scenname2">Scenarijus 2</span></a></li>
+	    <li><a href="#fragment-4"><span id="scenname3">Scenarijus 3</span></a></li>
+	    <li><a href="#fragment-5"><span>Palyginimas</span></a></li>
 	</ul>
-	<div id="fragment-1"><div id="output1"></div></div>
-	<div id="fragment-2"><div id="output2"></div></div>
-	<div id="fragment-3"><div id="output3"></div></div>
-	<div id="fragment-4">
-	   <div id="comparison"></div>
-	   <p id="choices">Rodyti:</p>
-	   <div id ="placeholder" style="width:600px;height:300px;"></div>
-	</div>
-	<div id="fragment-5">
+	<div id="fragment-1">
 	    <form id="eform" method="POST" action="pages/query/forecast.php">  
 		<div id="formtabs">
 		    <ul>
@@ -145,7 +138,16 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
     	   	<input name="nrows" type="hidden" value="7"/>
 	    </form>
 	</div>
-    </div>
+
+	<div id="fragment-2"><div id="output1"></div></div>
+	<div id="fragment-3"><div id="output2"></div></div>
+	<div id="fragment-4"><div id="output3"></div></div>
+	<div id="fragment-5">
+	   <div id="comparison"></div>
+	   <p id="choices">Rodyti:</p>
+	   <div id ="placeholder" style="width:600px;height:300px;"></div>
+	</div>
+     </div>
 </div> 
 <!-- Pagrindinio turinio pabaiga -->
 

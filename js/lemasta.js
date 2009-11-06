@@ -15,7 +15,7 @@ function showTooltip(x, y, contents) {
 function show(sob) {
     var previousPoint = null;
     fplot=toflot(sob);
-    $("#tabs").tabs('select',3);
+    $("#tabs").tabs('select',4);
     $("#comparison").html(ctable(sob));
     
     var choiceContainer = $("#choices");
@@ -145,7 +145,7 @@ function ctable(sob) {
 }
 
 function showRequest(formData, jqForm, options) { 
-    $.blockUI({message: "<h1><img src='css/bigrotation2.gif'>Palauk skaičiuojam</h1>"});
+    $.blockUI({message: "<h1><img src='css/bigrotation2.gif'>Palaukite, vyksta skaičiavimai</h1>"});
     return true; 
 } 
 

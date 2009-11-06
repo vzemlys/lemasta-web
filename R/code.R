@@ -496,7 +496,7 @@ produce.tb <- function(x,meta,years=2006:2011,gdpshare=NULL){
     
 }
 
-csvhtpair <- function(res,suffix,cssattr="varno",catalogue="") {
+csvhtpair <- function(res,suffix,cssattr="varno",radattr="radiono",catalogue="") {
 ##cssattr is very important, since it is used in javascript code
 ##to determine which variable is being compared
     
@@ -508,8 +508,12 @@ csvhtpair <- function(res,suffix,cssattr="varno",catalogue="") {
     ids <- 1:dim(res)[1]-1
     butt <- paste("<input type='submit' value='Lyginti' ",cssattr,"='",ids,"'/>",sep="")
 
-    hres <- data.frame(res,butt)
-    colnames(hres) <- c(names(res),"")
+    radiol <- paste("<input type='radio' name='show",suffix,"type",ids,"' value='Level' checked'/>",sep="")
+    radiog <- paste("<input type='radio' name='show",suffix,"type",ids,"' value='Growth'/>",sep="")
+    radio <- paste(radiol,radiog,sep="")
+    
+    hres <- data.frame(res,radio,butt)
+    colnames(hres) <- c(names(res),"","")
 
     print(xtable(hres),type="html",include.rows=FALSE,file=htname,html.table.attributes='border="1" id="table1",cellpading="2"',sanitize.text.function=function(x)x)
 

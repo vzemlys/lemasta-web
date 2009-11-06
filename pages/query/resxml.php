@@ -4,7 +4,7 @@
 $f1=file_get_contents("../../R/form1.html");
 
 $xml="<lemasta>";
-$scennames=array("Bazinis scenarijus","Scenarijus 1","Scenarijus 2");
+$scennames=array("Scenarijus 1","Scenarijus 2","Scenarijus 3");
 for($i=1;$i<=3;$i++) {
     $dt=file_get_contents("../../R/data$i.csv");
     $ht=file_get_contents("../../R/ftable$i.html");
