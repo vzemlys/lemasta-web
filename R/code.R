@@ -443,12 +443,12 @@ inverse.tb <- function(x,meta) {
     #rezultatas bus metinė laiko eilutė kurioje vienetai bus
     #tokie patys kaip ir originaliuose duomenyse.
 
-    years <- as.numeric(colnames(x)[-1])
+    years <- as.numeric(colnames(x)[-2:-1])
 
     x <- x[match(as.character(meta$Rodiklis),as.character(x$Rodiklis)),]
     nm <- as.character(meta$Name)
 
-    tt <- ts(t(x[,-1]),start=years[1])
+    tt <- ts(t(x[,-2:-1]),start=years[1])
     colnames(tt) <- nm
            
     formulas <- as.character(meta$Inverse)
@@ -464,6 +464,7 @@ produce.tb <- function(x,meta,years=2006:2011,gdpshare=NULL){
    
     formulas <-as.character(meta[,2])
     fnames <- as.character(meta[,1])
+    
       
     years <- min(years):max(years)
   
@@ -485,8 +486,8 @@ produce.tb <- function(x,meta,years=2006:2011,gdpshare=NULL){
     
     res <- foreach(el=res) %do% {
         ll <- t(sapply(el,window,start=min(years),end=max(years)))
-        dt <- data.frame(Rodiklis=fnames,ll)
-        names(dt)[-1] <- years
+        dt <- data.frame(Rodiklis=fnames,Vienetai=as.character(meta$Vienetai),ll)
+        names(dt)[-2:-1] <- years
         dt
     }
     
@@ -496,7 +497,128 @@ produce.tb <- function(x,meta,years=2006:2011,gdpshare=NULL){
     
 }
 
-csvhtpair <- function(res,suffix,cssattr="varno",radattr="radiono",catalogue="") {
+tb.conform <- function(tb) {
+    ##Find the longest table, padd the other with NAs
+    require(foreach)
+
+    if(!is.null(tb$nominal)) {
+        foreach(r=tb$real,n=tb$nominal,nm=names(tb$real)) %do% {
+            rr <- nrow(r)
+            rn <- nrow(n)
+
+            if(rr<rn) {
+                res <- n
+                grr <- r$Rodiklis
+                grn <- n$Rodiklis
+#                browser()             
+                res[grn%in%levels(grr),-2:-1] <- r[,-2:-1]
+                res[!(grn%in% levels(grr)),-2:-1] <- NA
+                tb$real[[nm]] <- res
+            }
+                
+        }
+        
+    }
+    tb   
+}
+
+scen.2.xml <- function(scen,no,name="Scenarijus",tbnames=NULL) {
+    
+    xml <- "<scenario>"
+    xml <- paste(xml,"<number>",no,"</number>",sep="")
+
+    xml <- paste(xml,"<name>",name,"</name>",sep="")
+
+    if(is.null(tbnames))tbnames <- paste("Lentelė",1:length(scen$table))
+    
+    startvar <- 0
+    foreach(tb=scen$table,id=1:length(scen$table),nmtb=tbnames) %do% {
+            xml <- paste(xml,"<table>",sep="")
+            xml <- paste(xml,"<tbno>",id,"</tbno>",sep="")
+            xml <- paste(xml,"<tbname>",nmtb,"</tbname>",sep="")
+            ht <- tb.2.html(tb,scenno=no,tbno=id,startvar=startvar)
+            xml <- paste(xml,"<data><![CDATA[",ht$str,"]]></data>",sep="")
+            xml <- paste(xml,"</table>",sep="")
+            startvar <- startvar+nrow(ht$dt)
+        }
+
+    if(!is.null(scen$form)) {
+        frm <- produce.form(scen$form$data,start=scen$form$start,pref=paste(scen$form$pref,no,sep=""),string=TRUE)
+       
+        xml <- paste(xml,"<form><![CDATA[",frm,"]]></form>",sep="")
+    }
+
+    xml <- paste(xml,"<csv>")
+    nm1 <- foreach(tb=scen$table,.combine=c) %do% names(tb)
+    nm1 <- unique(nm1)
+    
+    foreach(lev1=nm1) %do% {
+        xml <- paste(xml,"<",lev1,">",sep="")
+        nm2 <- foreach(tb=scen$table,.combine=c) %do% {
+            names(tb[[lev1]])
+        }
+        nm2 <- unique(nm2)
+        
+        foreach(lev2=nm2) %do% {
+            xml <- paste(xml,"<",lev2,">",sep="")
+            csv <- foreach(tb=scen$table,.combine=rbind) %do% tb[[lev1]][[lev2]]
+            str <- capture.output(write.table(csv,file="",row.names=FALSE,quote=FALSE,na="0",sep="\t"))
+            str <- paste(str,collapse="\n")
+            xml <- paste(xml,str,sep="")
+            xml <- paste(xml,"</",lev2,">",sep="")
+        }
+        xml <- paste(xml,"</",lev1,">",sep="")
+    }
+    xml <- paste(xml,"</csv>",sep="")
+
+    xml <- paste(xml,"</scenario>",sep="")
+    xml
+}
+
+
+tb.2.html <- function(tb,scenno,tbno,startvar=0,var="varno",scen="scenno") {
+    res <- tb$real$growth
+
+
+    nrow <- dim(res)[1]
+
+    ids <- 1:nrow-1+startvar
+    
+    butt <- paste("<input type='submit' value='Lyginti' ",var,"='",ids,"'/>",sep="")
+   
+    radiol <- paste("<input type='radio' name='lgs",scenno,"type",ids,"' value='Level' ",var,"='",ids,"' ",scen,"='",scenno, "'/>",sep="")
+
+    radiog <- paste("<input type='radio' name='lgs",scenno,"type",ids,"' value='Growth' ",var,"='",ids,"' ",scen,"='",scenno, "' checked />",sep="")
+    radios <- paste("<input type='radio' name='lgs",scenno,"type",ids,"' value='Share' ",var,"='",ids,"' ",scen,"='",scenno, "'/>",sep="")
+    
+    radior <- paste("<input type='radio' name='rn",scenno,"type",ids,"' value='Real' ",var,"='",ids,"' ",scen,"='",scenno, "' checked/>",sep="")
+
+    radion <- paste("<input type='radio' name='rn",scenno,"type",ids,"' value='Nominal' ",var,"='",ids,"' ",scen,"='",scenno, "'/>",sep="")
+
+    radio <- cbind(radiol,radiog)
+    nm.radio <- c("Lygis","Augimas")
+
+    if(!is.null(tb$real$gdpshare)) {
+        radio <- cbind(radio,radios)
+        nm.radio <- c(nm.radio,"BVP dalis")
+    }
+    if(!is.null(tb$nominal)) {
+        radio <- cbind(radio,radior,radion)
+        nm.radio <- c(nm.radio,"Realios","Veikusios")
+    }
+    hres <- data.frame(res,radio,butt)
+    
+    colnames(hres) <- c(names(res),nm.radio,"")
+    #htname <- paste(catalogue,"ftable",tbno,"-",scenno,".html",sep="")
+
+    tbattr <- paste('border="1" ,cellpading="2", id="table',tbno,'-',scenno,'"',sep="")
+
+    capture.output(str <- print(xtable(hres),type="html",include.rows=FALSE,html.table.attributes=tbattr,sanitize.text.function=function(x)x))
+    
+    list(dt=hres,str=str)
+}
+
+csvhtpair <- function(res,suffix,cssattr="varno",scenattr="scenno",catalogue="") {
 ##cssattr is very important, since it is used in javascript code
 ##to determine which variable is being compared
     
@@ -508,22 +630,22 @@ csvhtpair <- function(res,suffix,cssattr="varno",radattr="radiono",catalogue="")
     ids <- 1:dim(res)[1]-1
     butt <- paste("<input type='submit' value='Lyginti' ",cssattr,"='",ids,"'/>",sep="")
 
-    radiol <- paste("<input type='radio' name='show",suffix,"type",ids,"' value='Level' checked'/>",sep="")
-    radiog <- paste("<input type='radio' name='show",suffix,"type",ids,"' value='Growth'/>",sep="")
-    radio <- paste(radiol,radiog,sep="")
+    radiol <- paste("<input type='radio' name='show",suffix,"type",ids,"' value='Level' ",cssattr,"='",ids,"' ",scenattr,"='",suffix, "' checked'/>",sep="")
+    radiog <- paste("<input type='radio' name='show",suffix,"type",ids,"' value='Growth' ",cssattr,"='",ids,"' ",scenattr,"='",suffix, "'/>",sep="")
+    #radio <- paste(radiol,radiog,sep="")
     
-    hres <- data.frame(res,radio,butt)
-    colnames(hres) <- c(names(res),"","")
+    hres <- data.frame(res,radiol,radiog,butt)
+    colnames(hres) <- c(names(res),"Lygis","Augimas","")
 
     print(xtable(hres),type="html",include.rows=FALSE,file=htname,html.table.attributes='border="1" id="table1",cellpading="2"',sanitize.text.function=function(x)x)
 
 }
 
-produce.form <- function(etb,start=2009,prefix="") {
+produce.form <- function(etb,start=2009,prefix="",string=TRUE) {
 
     no <- dim(etb)[1]
     nms <- paste(prefix,"egzo",1:no,"[]",sep="")
-    years <- as.numeric(colnames(etb)[-1])
+    years <- as.numeric(colnames(etb)[-2:-1])
 
     shy <- as.character(years[years<start])
     wry <- as.character(years[years>=start])
@@ -543,11 +665,17 @@ produce.form <- function(etb,start=2009,prefix="") {
     wcols <- sapply(etb[,wry],write.col.fun,nm=nms)
     
     first <- paste(etb[,1],"<input name='",nms,"' value='",etb[,1],"' type='hidden'/>",sep="")
-    res <- data.frame(first,scols,wcols)
+    res <- data.frame(first,etb[,2],scols,wcols)
 
     names(res) <- c("Rodiklis",names(etb)[-1])
-    res
 
+    tbattr <- paste('border="1" ,cellpading="2", id="',prefix,'table"',sep="")
+    
+    if(string) {
+        capture.output(str <- print(xtable(res),type="html",include.rows=FALSE,html.table.attributes=tbattr,sanitize.text.function=function(x)x))
+        res <- str
+    }
+    res
 }
 
 todf <- function(x) {

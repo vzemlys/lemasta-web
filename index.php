@@ -78,10 +78,14 @@ $(document).ready(function() {
     
     $("#tabs").tabs();
     $("#tabs").click(function(event) {
-	var i=$(event.target).attr("varno");
+	var tg=$(event.target);
+	var i=tg.attr("varno");
 	if(i) {
 	    var i=parseInt(i);
-	    if(window.cd)show(window.cd[i]);
+	    var kas=tg.val();
+	    if(kas=="Lyginti") {
+		if(window.cd)show(window.cd[i]);
+	    }
 	}
     });
 
@@ -123,9 +127,9 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 	    <form id="eform" method="POST" action="pages/query/forecast.php">  
 		<div id="formtabs">
 		    <ul>
-		      <li><a href="#frag-1"><span id="fscenname1">Bazinis scenarijus</span></a></li>
-		      <li><a href="#frag-2"><span id="fscenname2">Scenarijus 1</span></a></li>
-		      <li><a href="#frag-3"><span id="fscenname3">Scenarijus 2</span></a></li>
+		      <li><a href="#frag-1"><span id="fscenname1">Scenarijus 1</span></a></li>
+		      <li><a href="#frag-2"><span id="fscenname2">Scenarijus 2</span></a></li>
+		      <li><a href="#frag-3"><span id="fscenname3">Scenarijus 3</span></a></li>
 		    </ul>
 		    <div id="frag-1"><div id="eformcont1"></div></div>
 		    <div id="frag-2"><div id="eformcont2"></div></div>

@@ -165,9 +165,17 @@ function fillscenario(scen) {
      
      var id=$("number",scen).text();
      var name=$("name",scen).text();
-     var tb=$("tb1",scen).text(); 
+    
+     var tbhtml="";
 
-     $("#output"+id).html(tb); //Fill out table data     
+     jQuery.map($("table",scen),function(tb,no){
+		tbhtml=tbhtml+"<h2 class='center'>"+$("tbname",tb).text()+"</h2>\n";
+		tbhtml=tbhtml+"<br>\n";
+		tbhtml=tbhtml+$("data",tb).text()+"\n"; //Fill out table data     
+		tbhtml=tbhtml+"<br>\n";
+	     });
+      
+     $("#output"+id).html(tbhtml);
      $("#scenname"+id).html(name); //Change tab name
      $("#fscenname"+id).html(name); //Change scenario tab name
 
@@ -203,5 +211,5 @@ function xmltocontent(xml) {
 	$("#tabs").tabs('select',parseInt(cdt[0].id)-1);
 	window.scroll(0,0);
     }
-    window.cd=prepare(window.cdt);
+   // window.cd=prepare(window.cdt);
 }
