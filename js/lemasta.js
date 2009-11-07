@@ -70,6 +70,32 @@ function plotAccordingToChoices(fplot) {
 	$("#placeholder").html("");
     }
 }
+function breakdown(csv) {
+    return {
+	real : {
+		level:  prepare(pick(csv,"real","level")),
+		growth: prepare(pick(csv,"real","growth")),
+		gdpshare: prepare(pick(csv,"real","gdpshare"))
+	       },
+	nominal : {
+		level:  prepare(pick(csv,"nominal","level")),
+		growth: prepare(pick(csv,"nominal","growth")),
+		gdpshare: prepare(pick(csv,"nominal","gdpshare"))
+    	     }
+       }
+
+}
+function pick(csv,lev1,lev2) {
+   var tmp=csv.map(function(ind){
+	    return {
+		csv: $(lev2,$(lev1,ind.csv)).text(),
+		name: ind.name,
+		id: ind.id	
+	    }
+	   });
+   return tmp;
+
+}
 
 function prepare(csv) {
     var tmp=[];
@@ -87,7 +113,7 @@ function prepare(csv) {
 		return ind.name;
 	    })
     var res=[];
-    for(var j=1;j<novar-1;j++) {
+    for(var j=2;j<novar-1;j++) {
 	
 	var table=[];
 	for(i=0;i<csv.length;i++) {
@@ -195,7 +221,7 @@ function xmltocontent(xml) {
     var cdt=[];
     cdt=jQuery.map($("scenario",xml),function(scen,no){
 	    fillscenario(scen);	
-	    return {csv: $("csv",scen).text(),
+	    return {csv: $("csv",scen),
 		    name: $("name",scen).text(), 
 		    id : $("number",scen).text()
 		    };
@@ -211,5 +237,5 @@ function xmltocontent(xml) {
 	$("#tabs").tabs('select',parseInt(cdt[0].id)-1);
 	window.scroll(0,0);
     }
-   // window.cd=prepare(window.cdt);
+   window.cd=breakdown(window.cdt);
 }
