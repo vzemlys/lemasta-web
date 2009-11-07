@@ -108,16 +108,16 @@ function prepare(csv) {
 		    return res;
 		});
     var novar=tmp[0].length;
-    var years=tmp[0][0].slice(1);
+    var years=tmp[0][0].slice(2);
     var snames=csv.map(function(ind){
 		return ind.name;
 	    })
     var res=[];
-    for(var j=2;j<novar-1;j++) {
+    for(var j=1;j<novar;j++) {
 	
 	var table=[];
 	for(i=0;i<csv.length;i++) {
-	    table.push(tmp[i][j].slice(1));
+	    table.push(tmp[i][j].slice(2));
 	}
 
 	res.push({title: tmp[0][j][0],

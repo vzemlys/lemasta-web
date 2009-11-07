@@ -86,6 +86,11 @@ $(document).ready(function() {
 	    if(kas=="Lyginti") {
 		if(window.cd)show(window.cd[i]);
 	    }
+	    else {
+		var sc=tg.attr("scenno");
+				
+	    }
+	   
 	}
     });
 
