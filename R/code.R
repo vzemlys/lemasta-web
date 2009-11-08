@@ -693,7 +693,7 @@ todf <- function(x) {
 
 }
 
-doforecast <- function(x,sceno,years=2006:2011) {
+doforecast <- function(x,sceno,scenname,years=2006:2011) {
     require(tseries)
     require(nleqslv)
     require(plyr)
@@ -712,5 +712,17 @@ doforecast <- function(x,sceno,years=2006:2011) {
     tbreal1 <- produce.tb(flydt,mreal,years=years,gdpshare=as.character(mreal[1,2]))
     tbnom1 <- produce.tb(flydt,mnom,years=years,as.character(mnom[1,2]))
     
-    csvhtpair(tbreal1$growth,sceno);
+    tb2 <- produce.tb(flydt,mprice,years=2006:2011)
+    tb3 <- produce.tb(flydt,mwf,years=2006:2011)
+
+    tb1 <- list(real=tbreal1,nominal=tbnom1)
+    tb2 <- list(real=tb2)
+    tb3 <- list(real=tb3)
+
+    scen <- list(table=list(tb.conform(tb1),tb2,tb3))
+
+    tbnames <- c("BVP ir jo dalys","Kainos","Darbo rinkos rodikliai")
+
+    scen <- scen.2.xml(scen,sceno,scenname,tbnames)
+    write(scen,file=paste("scen",sceno,".xml",sep=""))
 }

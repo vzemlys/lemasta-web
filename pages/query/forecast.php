@@ -52,7 +52,7 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
             $rcode=$rcode."cc <- cast(bb,variable~row)\n";
 	    $rcode=$rcode."print(cc)\n";
 	    $scn=$_POST["scenname".$sno]; 
-	    $rcode=$rcode."doforecast(cc,$sno,$scn)\n";
+	    $rcode=$rcode."doforecast(cc,$sno,'$scn')\n";
 
 	}
 	$fp=fopen($cfn,"w");
