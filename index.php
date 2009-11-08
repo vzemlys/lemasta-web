@@ -82,13 +82,30 @@ $(document).ready(function() {
 	var i=tg.attr("varno");
 	if(i) {
 	    var i=parseInt(i);
+	    var scno=parseInt(tg.attr("scenno"));
+	    var tbno=parseInt(tg.attr("tbno"));
+	    var tbvarno=parseInt(tg.attr("tbvarno"));
+       
+	    var rnname="'rn"+scno+"type"+i+"'";
+	    var lgsname="'lgs"+scno+"type"+i+"'";
+	
+	    var rn=$("input[name="+rnname+"]:checked").val();
+	    var lgs=$("input[name="+lgsname+"]:checked").val();
+
+	    if(!rn) {
+		rn="real";
+	    }		
 	    var kas=tg.val();
-	    if(kas=="Lyginti") {
-		if(window.cd)show(window.cd[i]);
-	    }
-	    else {
-		var sc=tg.attr("scenno");
-				
+
+	    if(window.cd) {
+		if(kas=="Lyginti") {
+		    show(window.cd[rn][lgs][i]);
+		}
+		else {
+		    kas=lgs;
+		    newrow=window.cd[rn][lgs][i].table[scno];
+		    updtb(newrow,scno,tbno,tbvarno);
+		}
 	    }
 	   
 	}

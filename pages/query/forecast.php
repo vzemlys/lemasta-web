@@ -25,6 +25,7 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
 	$rcode=$rcode."library(plyr)\n";
         $rcode=$rcode."library(xtable)\n";
 	$rcode=$rcode."library(reshape)\n";
+	$rcode=$rcode."library(foreach)\n";
         $rcode=$rcode."source('../../R/code.R')\n";
 	$rcode=$rcode."load('../../R/lemasta.RData')\n";
 
@@ -50,7 +51,8 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
 	    $rcode=$rcode."print(bb)\n";
             $rcode=$rcode."cc <- cast(bb,variable~row)\n";
 	    $rcode=$rcode."print(cc)\n";
-	    $rcode=$rcode."doforecast(cc,$sno)\n";
+	    $scn=$_POST["scenname".$sno]; 
+	    $rcode=$rcode."doforecast(cc,$sno,$scn)\n";
 
 	}
 	$fp=fopen($cfn,"w");
@@ -66,17 +68,8 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
 
 	$xml="<lemasta>";
 	foreach($check as $i) {
-	    $dt=file_get_contents("data$i.csv");
-	    $ht=file_get_contents("ftable$i.html");
-
-	    $xml=$xml."<scenario>";
-	    $xml=$xml."<number>$i</number>";
-	    $scn=$_POST["scenname".$i]; //Rely on client fillscenario
-	    $xml=$xml."<name>$scn</name>";
-	    $xml=$xml."<tb1>";
-	    $xml=$xml."<![CDATA[$ht]]>";
-	    $xml=$xml."</tb1>";
-	    $xml=$xml."<csv>$dt</csv></scenario>";
+	    $dt=file_get_contents("scen$i.xml");
+	    $xml=$xml.$dt;
 	}
 	
 	$xml=$xml."</lemasta>";

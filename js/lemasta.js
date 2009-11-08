@@ -146,7 +146,22 @@ function toflot(sob) {
     }
     return res;
 }
-
+function updtb(newrow,scno,tbno,tbrowno) {
+    var tbid="#table"+tbno+"-"+scno;
+    var myrow=$(tbid+" tr").eq(tbrowno);
+    var mycells=$("td",myrow);
+    newrow=toFixed2(newrow);
+    for(i=0;i<newrow.length;i++) {
+//	alert(mycells.eq(i+3).text());
+	mycells.eq(i+3).html(newrow[i]);
+    }
+}
+function toFixed2(arr) {
+    res=arr.map(function(f) {
+	    return parseFloat(f).toFixed(2)
+	    });
+    return res;
+}
 function ctable(sob) {
     var html="";
     html=html+"<h2 class='center'>"+sob.title+"</h2>";

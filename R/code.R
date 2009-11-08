@@ -576,24 +576,34 @@ scen.2.xml <- function(scen,no,name="Scenarijus",tbnames=NULL) {
 }
 
 
-tb.2.html <- function(tb,scenno,tbno,startvar=0,var="varno",scen="scenno") {
+tb.2.html <- function(tb,scenno,tbno,startvar=0,var="varno",scen="scenno",tab="tbno",tbvar="tbvarno") {
     res <- tb$real$growth
 
 
     nrow <- dim(res)[1]
 
     ids <- 1:nrow-1+startvar
+    tbid <- 1:nrow
     
-    butt <- paste("<input type='submit' value='Lyginti' ",var,"='",ids,"'/>",sep="")
-   
-    radiol <- paste("<input type='radio' name='lgs",scenno,"type",ids,"' value='Level' ",var,"='",ids,"' ",scen,"='",scenno, "'/>",sep="")
 
-    radiog <- paste("<input type='radio' name='lgs",scenno,"type",ids,"' value='Growth' ",var,"='",ids,"' ",scen,"='",scenno, "' checked />",sep="")
-    radios <- paste("<input type='radio' name='lgs",scenno,"type",ids,"' value='Share' ",var,"='",ids,"' ",scen,"='",scenno, "'/>",sep="")
+
+    lgsattr <- paste("<input type='radio' name='lgs",scenno,"type",ids,"' ",sep="")
+    rnattr <- paste("<input type='radio' name='rn",scenno,"type",ids,"' ",sep="")
+                  
+    cattr <- paste(var,"='",ids,"' ",
+                   tbvar,"='",tbid,"' ",
+                   scen,"='",scenno,"' ",
+                   tab,"='",tbno,"' ",
+                   sep="")
+
+    butt <- paste("<input type='submit' value='Lyginti' ",cattr,"/>",sep="")
+
+    radiol <- paste(lgsattr,cattr,"value='level' />",sep="")
+    radiog <- paste(lgsattr,cattr,"value='growth' checked />",sep="")
+    radios <- paste(lgsattr,cattr," value='gdpshare' />",sep="")
     
-    radior <- paste("<input type='radio' name='rn",scenno,"type",ids,"' value='Real' ",var,"='",ids,"' ",scen,"='",scenno, "' checked/>",sep="")
-
-    radion <- paste("<input type='radio' name='rn",scenno,"type",ids,"' value='Nominal' ",var,"='",ids,"' ",scen,"='",scenno, "'/>",sep="")
+    radior <- paste(rnattr,cattr, "value='real'  checked/>",sep="")
+    radion <- paste(rnattr,cattr,"value='nominal' />",sep="")
 
     radio <- cbind(radiol,radiog)
     nm.radio <- c("Lygis","Augimas")
