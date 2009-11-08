@@ -99,7 +99,7 @@ $(document).ready(function() {
 
 	    if(window.cd) {
 		if(kas=="Lyginti") {
-		    show(window.cd[rn][lgs][i]);
+		    show(window.cd[rn][lgs][i]," ("+rn+", "+ lgs+ ")");
 		}
 		else {
 		    kas=lgs;

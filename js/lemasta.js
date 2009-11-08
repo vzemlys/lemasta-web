@@ -12,11 +12,11 @@ function showTooltip(x, y, contents) {
 }
 
 
-function show(sob) {
+function show(sob,expl) {
     var previousPoint = null;
     fplot=toflot(sob);
     $("#tabs").tabs('select',4);
-    $("#comparison").html(ctable(sob));
+    $("#comparison").html(ctable(sob,expl));
     
     var choiceContainer = $("#choices");
     choiceContainer.html("Rodyti:");
@@ -162,9 +162,9 @@ function toFixed2(arr) {
 	    });
     return res;
 }
-function ctable(sob) {
+function ctable(sob,expl) {
     var html="";
-    html=html+"<h2 class='center'>"+sob.title+"</h2>";
+    html=html+"<h2 class='center'>"+sob.title+expl+"</h2>";
     html=html+"<table border=1 cellpadding=2 class='center'>";
     html=html+"<tr><th>Scenarijus</th>";
  
