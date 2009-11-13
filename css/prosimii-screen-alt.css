@@ -145,3 +145,7 @@ dd {
 #formtabs span {
     font-size: 85%;
 }
+.error {
+    font-weight: bold;
+    color: red;
+}

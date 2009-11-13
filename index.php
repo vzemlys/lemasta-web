@@ -102,7 +102,6 @@ $(document).ready(function() {
 		    show(window.cd[rn][lgs][i]," ("+rn+", "+ lgs+ ")");
 		}
 		else {
-		    kas=lgs;
 		    newrow=window.cd[rn][lgs][i].table[scno];
 		    updtb(newrow,scno,tbno,tbvarno);
 		}
@@ -110,15 +109,52 @@ $(document).ready(function() {
 	   
 	}
     });
-
+    
     $("#formtabs").tabs();
     var options= {
 	success: showResponse,
-	beforeSubmit:  showRequest,
+	    beforeSubmit:  showRequest,
+	    beforeSerialize: additionalInfo,
 	error: showError,
 	dataType: "xml"
     };
+    
     $("#eform").ajaxForm(options);
+    
+    $("#eform").bind("keydown", function(e) {
+	if (e.keyCode == 13) {
+	    var tg=$(e.target);
+	    var scno=parseInt(tg.attr("scenno"));
+	    var varno=parseInt(tg.attr("varno"));
+	    var valno=parseInt(tg.attr("valno"));
+	    //get the constants from the xml
+	     
+	    if(valno==6) {
+		if(varno==7) {
+		    if(scno==3)	 {
+			return false;
+		    }	
+		    $("#formtabs").tabs('select',scno);
+		    scno=scno+1;
+
+		    varno=1;
+		    valno=4;
+		}
+		else {
+		    valno=4;
+		    varno=varno+1;
+		}
+	    }
+	    else {
+		valno=valno+1;
+	    }
+	    var inp=$("#valinp"+scno+"-"+varno+"-"+valno);
+	    inp.focus();		
+    
+	    return false; //prevent default behaviour
+	}
+    });
+
     $('#OK').click(function() { 
             $.unblockUI(); 
             return false; 
@@ -158,10 +194,12 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 		    <div id="frag-3"><div id="eformcont3"></div></div>	
 		</div>
 		<div id="scenchoice"> </div>
+		<div id="stringsubmit"></div>
+
 		<input type='submit' value='Siųsti' id='submitegzo'/> 
 		<input name="arname" type="hidden" value="egzo"/>
 		<input name="sarname" type="hidden" value="scen"/>
-    	   	<input name="nrows" type="hidden" value="7"/>
+		<input name="nrows" type="hidden" value="7"/>
 	    </form>
 	</div>
 

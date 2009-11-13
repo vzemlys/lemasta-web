@@ -85,6 +85,7 @@ function breakdown(csv) {
        }
 
 }
+
 function pick(csv,lev1,lev2) {
    var tmp=csv.map(function(ind){
 	    return {
@@ -95,6 +96,24 @@ function pick(csv,lev1,lev2) {
 	   });
    return tmp;
 
+}
+function fbreak(fcdt) {
+    return {
+	level : csv2arr($("level",$("fbase",fcdt)).text()),
+	growth :csv2arr($("growth",$("fbase",fcdt)).text()),
+	upper : csv2arr($("upper",$("frest",fcdt)).text()),
+	lower : csv2arr($("lower",$("frest",fcdt)).text())
+    }
+
+}
+function csv2arr(csv) {
+    var tmp=[];
+    function splittab(block) {
+	return block.split("\t");	
+    }
+    tmp=csv.split("\n");
+    var res=tmp.map(splittab);
+    return res;
 }
 
 function prepare(csv) {
@@ -185,8 +204,64 @@ function ctable(sob,expl) {
     return html;
 }
 
+function additionalInfo() {
+     
+    $("#eform input[name='scensend1']").val(serializeScen("1",8,7)); //get those from initial.xml and save them somewhere
+    $("#eform input[name='scensend2']").val(serializeScen("2",8,7));
+    $("#eform input[name='scensend3']").val(serializeScen("3",8,7));
+
+    return true;
+}
+
+function serializeScen(scno,nrow,ncol) {
+    var tr=$("#scentable"+scno+" tr");
+    var res="";
+    //omit header row
+    for(i=1;i<nrow;i++) {
+	var crow = tr.eq(i);
+	var ccells=$("input",crow);
+	for(j=0;j<ncol;j++) {
+	    res=res+ccells.eq(j).val()+";";
+	}
+	res=res+"&";
+    }
+    return res;  
+}
+
+function validateScen(scno) {
+    return true;
+}
+function validateCell(scno,varno,valno) {
+    var inp=$("#valinp"+scno+"-"+varno+"-"+valno);
+	
+    var str=inp.val();
+    
+    if(str.match(/[0-9,.]/)) {
+	str=str.replace(/[,]/g,".");
+	dotm=str.match(/[.]/g);
+	if(dotm==null) {
+	    dotm=0;
+	}
+	else {
+	    dotm=dotm.length;
+	}
+	if(dotm<=1) {
+	    inp.val(str);
+	    var val=parseFloat(str);
+	    var low=parseFloat(window.fb.lower[varno][valno]);
+	    var upp=parseFloat(window.fb.upper[varno][valno]);
+	    if(val>=low & val<=upp) {
+		inp.removeClass("error");
+		return true;
+	    }
+	}
+    }
+    inp.addClass("error");
+    return false;
+}
+
 function showRequest(formData, jqForm, options) { 
-    $.blockUI({message: "<h1><img src='css/bigrotation2.gif'>Palaukite, vyksta skaičiavimai</h1>"});
+       $.blockUI({message: "<h1><img src='css/bigrotation2.gif'>Palaukite, vyksta skaičiavimai</h1>"});
     return true; 
 } 
 
@@ -229,11 +304,15 @@ function fillscenario(scen) {
  	
 	$("#eformcont"+id).html(html);
 	$("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" value="'+id+'">'+ name + '</input>');	
+	$("#stringsubmit").append('<input name="scensend'+id+ '" type=hidden, value="Nothing" id="scensend"'+id+'" </input>');
      }
+     
+
 }
 
 function xmltocontent(xml) {
     var cdt=[];
+    
     cdt=jQuery.map($("scenario",xml),function(scen,no){
 	    fillscenario(scen);	
 	    return {csv: $("csv",scen),
@@ -241,6 +320,19 @@ function xmltocontent(xml) {
 		    id : $("number",scen).text()
 		    };
 	    });
+    var fbt=$("rest",xml);
+    window.fb=fbreak(fbt);
+
+   $("#eform input[type=text]").blur(function(event){
+	var tg=$(event.target);
+	var scno=parseInt(tg.attr("scenno"));
+	var varno=parseInt(tg.attr("varno"));
+	var valno=parseInt(tg.attr("valno"));
+	
+	validateCell(scno,varno,valno);
+			
+    });
+
     if(!window.cdt) {
 	window.cdt=cdt;	
     }
