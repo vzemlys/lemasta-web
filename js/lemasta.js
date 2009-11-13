@@ -135,7 +135,7 @@ function prepare(csv) {
     for(var j=1;j<novar;j++) {
 	
 	var table=[];
-	for(i=0;i<csv.length;i++) {
+	for(var i=0;i<csv.length;i++) {
 	    table.push(tmp[i][j].slice(2));
 	}
 
@@ -152,9 +152,9 @@ function toflot(sob) {
     var noscen=sob.table.length;
     var res=[];
     var time=[2006,2007,2008,2009,2010,2011];
-    for(i=0;i<noscen;i++) {
+    for(var i=0;i<noscen;i++) {
 	var data=[];
-    	for(j=0;j<sob.table[i].length;j++) {
+    	for(var j=0;j<sob.table[i].length;j++) {
 	    data.push([time[j],parseFloat(sob.table[i][j])]);
 	}
 	res.push({
@@ -170,7 +170,7 @@ function updtb(newrow,scno,tbno,tbrowno) {
     var myrow=$(tbid+" tr").eq(tbrowno);
     var mycells=$("td",myrow);
     newrow=toFixed2(newrow);
-    for(i=0;i<newrow.length;i++) {
+    for(var i=0;i<newrow.length;i++) {
 //	alert(mycells.eq(i+3).text());
 	mycells.eq(i+3).html(newrow[i]);
     }
@@ -205,22 +205,37 @@ function ctable(sob,expl) {
 }
 
 function additionalInfo() {
-     
-    $("#eform input[name='scensend1']").val(serializeScen("1",8,7)); //get those from initial.xml and save them somewhere
-    $("#eform input[name='scensend2']").val(serializeScen("2",8,7));
-    $("#eform input[name='scensend3']").val(serializeScen("3",8,7));
+    var valid=false;
+    $("#scenchoice").find("input:checked").each(function () {
+            var key = $(this).val();
+	    key = parseInt(key);
+	    valid=validateScen(key);
+	    if(valid) {
+		$("#eform input[name='scensend"+key+"']").val(serializeScen(key));
+	    }
+        });
 
-    return true;
+    
+   /* for(var i=1;i<=window.lc.noscen;i++) {
+	if($("#scenchoice"+i).is(":checked"))  {
+	   valid=validateScen(i);
+	    if(valid) {
+		$("#eform input[name='scensend"+i+"']").val(serializeScen(i));
+	    }
+	}
+    }*/	
+
+    return valid;
 }
 
 function serializeScen(scno,nrow,ncol) {
     var tr=$("#scentable"+scno+" tr");
     var res="";
     //omit header row
-    for(i=1;i<nrow;i++) {
+    for(var i=1;i<=window.lc.nofvar;i++) {
 	var crow = tr.eq(i);
 	var ccells=$("input",crow);
-	for(j=0;j<ncol;j++) {
+	for(var j=0;j<=window.lc.inpend;j++) {
 	    res=res+ccells.eq(j).val()+";";
 	}
 	res=res+"&";
@@ -229,30 +244,44 @@ function serializeScen(scno,nrow,ncol) {
 }
 
 function validateScen(scno) {
-    return true;
+    var valid=false;
+	for(var i=1;i<=7;i++) {
+	    for(var j=4;j<=6;j++) {
+		valid=validateCell(scno,i,j);	
+	    }
+	}
+    return valid;
+}
+function matchlength(m) {
+    if(m==null) {
+	return 0;
+    }
+    else {
+	return m.length;
+    }
 }
 function validateCell(scno,varno,valno) {
     var inp=$("#valinp"+scno+"-"+varno+"-"+valno);
 	
     var str=inp.val();
-    
-    if(str.match(/[0-9,.]/)) {
-	str=str.replace(/[,]/g,".");
-	dotm=str.match(/[.]/g);
-	if(dotm==null) {
-	    dotm=0;
-	}
-	else {
-	    dotm=dotm.length;
-	}
-	if(dotm<=1) {
-	    inp.val(str);
-	    var val=parseFloat(str);
-	    var low=parseFloat(window.fb.lower[varno][valno]);
-	    var upp=parseFloat(window.fb.upper[varno][valno]);
-	    if(val>=low & val<=upp) {
-		inp.removeClass("error");
-		return true;
+    if(str=="") {
+	inp.val(parseFloat(window.fb.level[varno][valno]).toFixed(2));
+	inp.removeClass("error");
+	return true;
+    }
+    else {
+        if(str.match(/[0-9,.]/)) {
+	    str=str.replace(/[,]/g,".");
+	    dotm=matchlength(str.match(/[.]/g));
+	    if(dotm<=1) {
+		inp.val(str);
+		var val=parseFloat(str);
+		var low=parseFloat(window.fb.lower[varno][valno]);
+		var upp=parseFloat(window.fb.upper[varno][valno]);
+		if(val>=low & val<=upp) {
+		    inp.removeClass("error");
+		    return true;
+		}
 	    }
 	}
     }
@@ -303,8 +332,11 @@ function fillscenario(scen) {
 	html=html+fr;
  	
 	$("#eformcont"+id).html(html);
-	$("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" value="'+id+'">'+ name + '</input>');	
-	$("#stringsubmit").append('<input name="scensend'+id+ '" type=hidden, value="Nothing" id="scensend"'+id+'" </input>');
+//	$("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" id="scenchoice"'+id+'" value="'+id+'">'+ name + '</input>');
+
+	$("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" value="'+id+'">'+ name + '</input>');
+
+	$("#stringsubmit").append('<input name="scensend'+id+ '" type="hidden", value="Nothing" id="scensend"'+id+'" </input>');
      }
      
 
@@ -320,8 +352,17 @@ function xmltocontent(xml) {
 		    id : $("number",scen).text()
 		    };
 	    });
-    var fbt=$("rest",xml);
-    window.fb=fbreak(fbt);
+    
+    if(!window.fb) {
+        var fbt=$("rest",xml);
+        window.fb=fbreak(fbt);
+	window.lc={
+	    noscen : cdt.length,
+	    nofvar : window.fb.level.length-1,
+	    inpstart: 4,
+	    inpend: window.fb.level[0].length-1
+	};
+    }
 
    $("#eform input[type=text]").blur(function(event){
 	var tg=$(event.target);
@@ -332,6 +373,8 @@ function xmltocontent(xml) {
 	validateCell(scno,varno,valno);
 			
     });
+    
+    $("#eform input[name='nrows']").val(window.lc.nofvar);
 
     if(!window.cdt) {
 	window.cdt=cdt;	
@@ -341,7 +384,7 @@ function xmltocontent(xml) {
 		var i=parseInt(this.id)-1;
 		window.cdt[i]=this;
     		});	
-	$("#tabs").tabs('select',parseInt(cdt[0].id)-1);
+	$("#tabs").tabs('select',parseInt(cdt[0].id));
 	window.scroll(0,0);
     }
    window.cd=breakdown(window.cdt);

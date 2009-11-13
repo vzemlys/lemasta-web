@@ -102,7 +102,7 @@ $(document).ready(function() {
 		    show(window.cd[rn][lgs][i]," ("+rn+", "+ lgs+ ")");
 		}
 		else {
-		    newrow=window.cd[rn][lgs][i].table[scno];
+		    newrow=window.cd[rn][lgs][i].table[scno-1];
 		    updtb(newrow,scno,tbno,tbvarno);
 		}
 	    }
@@ -154,7 +154,7 @@ $(document).ready(function() {
 	    return false; //prevent default behaviour
 	}
     });
-
+ 
     $('#OK').click(function() { 
             $.unblockUI(); 
             return false; 
@@ -189,7 +189,7 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 		      <li><a href="#frag-2"><span id="fscenname2">Scenarijus 2</span></a></li>
 		      <li><a href="#frag-3"><span id="fscenname3">Scenarijus 3</span></a></li>
 		    </ul>
-		    <div id="frag-1"><div id="eformcont1"></div></div>
+		    <div id="frag-1"><div id="eformcont1"></div><div id="formerror1"></div></div>
 		    <div id="frag-2"><div id="eformcont2"></div></div>
 		    <div id="frag-3"><div id="eformcont3"></div></div>	
 		</div>
@@ -199,7 +199,7 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 		<input type='submit' value='Siųsti' id='submitegzo'/> 
 		<input name="arname" type="hidden" value="egzo"/>
 		<input name="sarname" type="hidden" value="scen"/>
-		<input name="nrows" type="hidden" value="7"/>
+		<input name="nrows"  type="hidden" value="3"/>
 	    </form>
 	</div>
 
