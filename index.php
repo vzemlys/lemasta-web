@@ -127,26 +127,29 @@ $(document).ready(function() {
 	    var scno=parseInt(tg.attr("scenno"));
 	    var varno=parseInt(tg.attr("varno"));
 	    var valno=parseInt(tg.attr("valno"));
+	    validateCell(scno,varno,valno);
 	    //get the constants from the xml
-	     
-	    if(valno==6) {
-		if(varno==7) {
+	    if(varno==7) {
+		if(valno==6) {
 		    if(scno==3)	 {
-			return false;
-		    }	
-		    $("#formtabs").tabs('select',scno);
-		    scno=scno+1;
-
+			$("#formtabs").tabs('select',0);
+			scno=1;
+		    }
+		    else {	    
+			$("#formtabs").tabs('select',scno);
+			scno=scno+1;
+		    }
 		    varno=1;
 		    valno=4;
+
 		}
 		else {
-		    valno=4;
-		    varno=varno+1;
+		    valno=valno+1;
+		    varno=1;
 		}
 	    }
 	    else {
-		valno=valno+1;
+		varno=varno+1;
 	    }
 	    var inp=$("#valinp"+scno+"-"+varno+"-"+valno);
 	    inp.focus();		
@@ -190,8 +193,8 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 		      <li><a href="#frag-3"><span id="fscenname3">Scenarijus 3</span></a></li>
 		    </ul>
 		    <div id="frag-1"><div id="eformcont1"></div><div id="formerror1"></div></div>
-		    <div id="frag-2"><div id="eformcont2"></div></div>
-		    <div id="frag-3"><div id="eformcont3"></div></div>	
+		    <div id="frag-2"><div id="eformcont2"></div><div id="formerror2"></div></div>
+		    <div id="frag-3"><div id="eformcont3"></div><div id="formerror3"></div></div>	
 		</div>
 		<div id="scenchoice"> </div>
 		<div id="stringsubmit"></div>

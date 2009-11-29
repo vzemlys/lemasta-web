@@ -165,22 +165,24 @@ function toflot(sob) {
     }
     return res;
 }
+
 function updtb(newrow,scno,tbno,tbrowno) {
     var tbid="#table"+tbno+"-"+scno;
     var myrow=$(tbid+" tr").eq(tbrowno);
     var mycells=$("td",myrow);
     newrow=toFixed2(newrow);
     for(var i=0;i<newrow.length;i++) {
-//	alert(mycells.eq(i+3).text());
 	mycells.eq(i+3).html(newrow[i]);
     }
 }
+
 function toFixed2(arr) {
     res=arr.map(function(f) {
 	    return parseFloat(f).toFixed(2)
 	    });
     return res;
 }
+
 function ctable(sob,expl) {
     var html="";
     html=html+"<h2 class='center'>"+sob.title+expl+"</h2>";
@@ -209,26 +211,15 @@ function additionalInfo() {
     $("#scenchoice").find("input:checked").each(function () {
             var key = $(this).val();
 	    key = parseInt(key);
-	    valid=validateScen(key);
+	    valid=valid || validateScen(key);
 	    if(valid) {
 		$("#eform input[name='scensend"+key+"']").val(serializeScen(key));
 	    }
         });
-
-    
-   /* for(var i=1;i<=window.lc.noscen;i++) {
-	if($("#scenchoice"+i).is(":checked"))  {
-	   valid=validateScen(i);
-	    if(valid) {
-		$("#eform input[name='scensend"+i+"']").val(serializeScen(i));
-	    }
-	}
-    }*/	
-
     return valid;
 }
 
-function serializeScen(scno,nrow,ncol) {
+function serializeScen(scno) {
     var tr=$("#scentable"+scno+" tr");
     var res="";
     //omit header row
@@ -244,10 +235,10 @@ function serializeScen(scno,nrow,ncol) {
 }
 
 function validateScen(scno) {
-    var valid=false;
+    var valid=true;
 	for(var i=1;i<=7;i++) {
 	    for(var j=4;j<=6;j++) {
-		valid=validateCell(scno,i,j);	
+		valid=valid && validateCell(scno,i,j);	
 	    }
 	}
     return valid;
@@ -264,9 +255,13 @@ function validateCell(scno,varno,valno) {
     var inp=$("#valinp"+scno+"-"+varno+"-"+valno);
 	
     var str=inp.val();
+    var low=parseFloat(window.fb.lower[varno][valno]);
+    var upp=parseFloat(window.fb.upper[varno][valno]);
+
     if(str=="") {
 	inp.val(parseFloat(window.fb.level[varno][valno]).toFixed(2));
 	inp.removeClass("error");
+        $("#formerror"+scno).html();
 	return true;
     }
     else {
@@ -276,21 +271,21 @@ function validateCell(scno,varno,valno) {
 	    if(dotm<=1) {
 		inp.val(str);
 		var val=parseFloat(str);
-		var low=parseFloat(window.fb.lower[varno][valno]);
-		var upp=parseFloat(window.fb.upper[varno][valno]);
-		if(val>=low & val<=upp) {
+			if(val>=low & val<=upp) {
 		    inp.removeClass("error");
+		    $("#formerror"+scno).html("");
 		    return true;
 		}
 	    }
 	}
     }
     inp.addClass("error");
+    $("#formerror"+scno).html("<strong class='error'>Reikšmė turi būti tarp "+low.toFixed(2)+ " ir " + upp.toFixed(2) + " </strong>");
     return false;
 }
 
 function showRequest(formData, jqForm, options) { 
-       $.blockUI({message: "<h1><img src='css/bigrotation2.gif'>Palaukite, vyksta skaičiavimai</h1>"});
+    $.blockUI({message: "<h1><img src='css/bigrotation2.gif'>Palaukite, vyksta skaičiavimai</h1>"});
     return true; 
 } 
 
@@ -332,7 +327,6 @@ function fillscenario(scen) {
 	html=html+fr;
  	
 	$("#eformcont"+id).html(html);
-//	$("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" id="scenchoice"'+id+'" value="'+id+'">'+ name + '</input>');
 
 	$("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" value="'+id+'">'+ name + '</input>');
 
