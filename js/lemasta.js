@@ -251,13 +251,18 @@ function matchlength(m) {
 	return m.length;
     }
 }
+
 function validateCell(scno,varno,valno) {
     var inp=$("#valinp"+scno+"-"+varno+"-"+valno);
 	
     var str=inp.val();
     var low=parseFloat(window.fb.lower[varno][valno]);
     var upp=parseFloat(window.fb.upper[varno][valno]);
+    
+    var nm=window.fb.lower[varno][0];
+    var yr=window.fb.lower[0][valno];
 
+    var hadError=inp.hasClass("error");
     if(str=="") {
 	inp.val(parseFloat(window.fb.level[varno][valno]).toFixed(2));
 	inp.removeClass("error");
@@ -273,15 +278,33 @@ function validateCell(scno,varno,valno) {
 		var val=parseFloat(str);
 			if(val>=low & val<=upp) {
 		    inp.removeClass("error");
-		    $("#formerror"+scno).html("");
+		    if(hadError) {
+			$("#formerror"+scno).html("");
+		    }
 		    return true;
 		}
 	    }
 	}
     }
     inp.addClass("error");
-    $("#formerror"+scno).html("<strong class='error'>Reikšmė turi būti tarp "+low.toFixed(2)+ " ir " + upp.toFixed(2) + " </strong>");
+    $("#formerror"+scno).html("<strong class='error'>Rodiklio „"+nm+"“ reikšmė "+yr+" metais turi būti tarp "+low.toFixed(2)+ " ir " + upp.toFixed(2) + " </strong>");
     return false;
+}
+
+function showBounds(scno,varno,valno) {
+    var inp=$("#valinp"+scno+"-"+varno+"-"+valno);
+    
+    if(inp.hasClass("error")) {
+	var low=parseFloat(window.fb.lower[varno][valno]);
+	var upp=parseFloat(window.fb.upper[varno][valno]);
+	var nm=window.fb.lower[varno][0];
+        var yr=window.fb.lower[0][valno];
+
+//	$("#formerror"+scno).html("<strong class='error'>Reikšmė turi būti tarp "+low.toFixed(2)+ " ir " + upp.toFixed(2) + " </strong>");
+        $("#formerror"+scno).html("<strong class='error'>Rodiklio „"+nm+"“ reikšmė "+yr+" metais turi būti tarp "+low.toFixed(2)+ " ir " + upp.toFixed(2) + " </strong>");
+
+    }
+   return true;      
 }
 
 function showRequest(formData, jqForm, options) { 
@@ -357,8 +380,10 @@ function xmltocontent(xml) {
 	    inpend: window.fb.level[0].length-1
 	};
     }
+    
+    var frmi=$("#eform input[type=text]");
 
-   $("#eform input[type=text]").blur(function(event){
+    frmi.blur(function(event){
 	var tg=$(event.target);
 	var scno=parseInt(tg.attr("scenno"));
 	var varno=parseInt(tg.attr("varno"));
@@ -367,6 +392,23 @@ function xmltocontent(xml) {
 	validateCell(scno,varno,valno);
 			
     });
+    frmi.focus(function(event){
+	var tg=$(event.target);
+	var scno=parseInt(tg.attr("scenno"));
+	var varno=parseInt(tg.attr("varno"));
+	var valno=parseInt(tg.attr("valno"));
+	
+	showBounds(scno,varno,valno);
+    });
+   /* $("#eform input[type=text]").blur(function(event){
+	var tg=$(event.target);
+	var scno=parseInt(tg.attr("scenno"));
+	var varno=parseInt(tg.attr("varno"));
+	var valno=parseInt(tg.attr("valno"));
+	
+	validateCell(scno,varno,valno);
+			
+    });*/
     
     $("#eform input[name='nrows']").val(window.lc.nofvar);
 

@@ -93,13 +93,22 @@ $(document).ready(function() {
 	    var lgs=$("input[name="+lgsname+"]:checked").val();
 
 	    if(!rn) {
-		rn="real";
+		var rn="real";
+		var rnname=""
 	    }		
+	    else {
+		if(rn=="real") var rnname="realios kainos, ";
+		if(rn=="nominal") var rnname="veikusios kainos, "
+	    }
+	    if(lgs=="level") var lgsname="lygiai";
+	    if(lgs=="growth") var lgsname="augimai";
+            if(lgs=="gdpshare") var lgsname="BVP dalis";
+
 	    var kas=tg.val();
 
 	    if(window.cd) {
 		if(kas=="Lyginti") {
-		    show(window.cd[rn][lgs][i]," ("+rn+", "+ lgs+ ")");
+		    show(window.cd[rn][lgs][i]," ("+rnname+ lgsname+ ")");
 		}
 		else {
 		    newrow=window.cd[rn][lgs][i].table[scno-1];
