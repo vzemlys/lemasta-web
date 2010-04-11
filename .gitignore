@@ -14,3 +14,5 @@ pages/temp/*
 *.swo
 .#*
 *#
+#Ignore Spotlight files
+.DS_Store

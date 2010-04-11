@@ -1,2 +1,10 @@
 1. Išarchyvuoti į katalogą, kuris pasiekiamas apache.
 2. Nustatyti katalogo pages/temp teises, kad į jį galėtų rašyti apache procesas
+3. Įdiegti R paketus :
+    require(tseries)
+    require(nleqslv)
+    require(plyr)
+    require(reshape)
+    require(foreach)
+4. Perkopijuoti failą initial.xml iš R katalogo į pages/query/ ir nustatyti
+read-only teises.
