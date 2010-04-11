@@ -676,6 +676,49 @@ rest.2.xml <- function(scen) {
     xml <- paste(xml,"</rest>",sep="")
     xml
 }
+
+exoadd.2.xml <- function(scen) {
+    xml <- "<exoadd>"
+
+    xml <- paste(xml,"<fbase>",sep="")
+    xml <- paste(xml,"<level>",sep="")
+    str <- capture.output(write.table(scen$exoadd$table$level,file="",row.names=FALSE,quote=FALSE,na="0",sep="\t"))
+    
+    str <- paste(str,collapse="\n")
+    xml <- paste(xml,str,sep="")
+    xml <- paste(xml,"</level>",sep="")
+
+    xml <- paste(xml,"<growth>",sep="")
+    str <- capture.output(write.table(scen$exoadd$table$level,file="",row.names=FALSE,quote=FALSE,na="0",sep="\t"))
+    
+    str <- paste(str,collapse="\n")
+    xml <- paste(xml,str,sep="")
+    xml <- paste(xml,"</growth>",sep="")
+
+    xml <- paste(xml,"</fbase>",sep="")
+
+    if(!is.null(scen$exo$add$rest)) {
+        xml <- paste(xml,"<frest>")
+        xml <- paste(xml,"<upper>",sep="")
+        str <- capture.output(write.table(scen$exoadd$rest$upper,file="",row.names=FALSE,quote=FALSE,na="0",sep="\t"))
+        str <- paste(str,collapse="\n")
+        xml <- paste(xml,str,sep="")
+        xml <- paste(xml,"</upper>",sep="")
+        
+        xml <- paste(xml,"<lower>",sep="")
+        str <- capture.output(write.table(scen$exoadd$rest$lower,file="",row.names=FALSE,quote=FALSE,na="0",sep="\t"))
+        str <- paste(str,collapse="\n")
+        xml <- paste(xml,str,sep="")
+        xml <- paste(xml,"</lower>",sep="")
+        
+        
+        xml <- paste(xml,"</frest>")
+    }
+    xml <- paste(xml,"</exoadd>",sep="")
+    xml
+}
+
+
 scen.2.xml <- function(scen,no,name="Scenarijus",tbnames=NULL) {
     
     xml <- "<scenario>"
@@ -805,7 +848,7 @@ csvhtpair <- function(res,suffix,cssattr="varno",scenattr="scenno",catalogue="")
 
 }
 
-produce.form <- function(etb,start=2009,scenno,string=TRUE,scen="scenno",var="varno",val="valno") {
+produce.form <- function(etb,start=2009,scenno,string=TRUE,scen="scenno",var="varno",val="valno",tableid="scentable") {
 
     no <- dim(etb)[1]
     nms <- paste("scen",scenno,"egzo",1:no,"[]",sep="")
@@ -850,7 +893,7 @@ produce.form <- function(etb,start=2009,scenno,string=TRUE,scen="scenno",var="va
 
     names(res) <- c("Rodiklis",names(etb)[-1])
 
-    tbattr <- paste('border="1" ,cellpading="2", id="scentable',scenno,'"',sep="")
+    tbattr <- paste('border="1" ,cellpading="2", id="',tableid,scenno,'"',sep="")
     
     if(string) {
         capture.output(str <- print(xtable(res),type="html",include.rows=FALSE,html.table.attributes=tbattr,sanitize.text.function=function(x)x))
@@ -882,6 +925,7 @@ doforecast <- function(x,sceno,scenname,years=2006:2011) {
     print(dd[,colnames(scq)])
     
   #  ftry <- eqforecast(start=c(2009,1),end=c(2011,4),eqR,ee,data=dd,leave=TRUE,use.jacobian=TRUE,control=list(ftol=1e-3))
+
     ftry <- eqprof(start=c(2009,1),end=c(2011,4),eqR,ee,data=dd,leave=TRUE,use.jacobian=FALSE,control=list(ftol=1e-3),prep=fp.prep)
     
     flydt <- q2y.meta(ftry$data,q2y)

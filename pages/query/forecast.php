@@ -4,13 +4,9 @@ include_once "../../include/misc.php";
 if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
     $str="";
     chdir("../temp/");
-    delfile("*.png");
+    delfile("*.xml");
     delfile("*.R");
-    delfile("*.html");
-    delfile("*.csv");
-    delfile("*.txt");
-
-    
+       
     $nr=(int)$_POST["nrows"]; //Rely on client index.php
     $pref=$_POST["arname"];  //Rely on client index.php
     $spref=$_POST["sarname"]; //Rely on client index.php

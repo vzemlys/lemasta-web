@@ -130,7 +130,8 @@ $(document).ready(function() {
     
     $("#eform").ajaxForm(options);
     
-    $("#eform").bind("keydown", function(e) {
+ /*   $("#eform").bind("keydown", function(e) {
+
 	if (e.keyCode == 13) {
 	    var tg=$(e.target);
 	    var scno=parseInt(tg.attr("scenno"));
@@ -165,7 +166,7 @@ $(document).ready(function() {
     
 	    return false; //prevent default behaviour
 	}
-    });
+});*/
  
     $('#OK').click(function() { 
             $.unblockUI(); 
@@ -200,10 +201,14 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 		      <li><a href="#frag-1"><span id="fscenname1">Scenarijus 1</span></a></li>
 		      <li><a href="#frag-2"><span id="fscenname2">Scenarijus 2</span></a></li>
 		      <li><a href="#frag-3"><span id="fscenname3">Scenarijus 3</span></a></li>
-		    </ul>
+		      <li><a href="#frag-4"><span id="fscen">Egzogenizavimas</span></a></li>
+		    
+</ul>
 		    <div id="frag-1"><div id="eformcont1"></div><div id="formerror1"></div></div>
 		    <div id="frag-2"><div id="eformcont2"></div><div id="formerror2"></div></div>
-		    <div id="frag-3"><div id="eformcont3"></div><div id="formerror3"></div></div>	
+		    <div id="frag-3"><div id="eformcont3"></div><div id="formerror3"></div></div>
+		    <div id="frag-4"><div id="eformexoadd"></div><div id="formerrorexoadd"></div></div>
+
 		</div>
 		<div id="scenchoice"> </div>
 		<div id="stringsubmit"></div>

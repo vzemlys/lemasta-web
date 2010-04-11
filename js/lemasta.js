@@ -207,12 +207,13 @@ function ctable(sob,expl) {
 }
 
 function additionalInfo() {
-    var valid=false;
+    var valid=true;
     $("#scenchoice").find("input:checked").each(function () {
             var key = $(this).val();
 	    key = parseInt(key);
-	    valid=valid || validateScen(key);
-	    if(valid) {
+	    var validscen =  validateScen(key);
+	    valid=valid && validscen
+	    if(validscen) {
 		$("#eform input[name='scensend"+key+"']").val(serializeScen(key));
 	    }
         });
@@ -379,6 +380,7 @@ function xmltocontent(xml) {
 	    inpstart: 4,
 	    inpend: window.fb.level[0].length-1
 	};
+	$("#eform").bind("keydown", tablenavigate)
     }
     
     var frmi=$("#eform input[type=text]");
@@ -424,4 +426,47 @@ function xmltocontent(xml) {
 	window.scroll(0,0);
     }
    window.cd=breakdown(window.cdt);
+}
+
+function tablenavigate(e) {
+   	if (e.keyCode == 13) {
+	    var tg=$(e.target);
+	    var scno=parseInt(tg.attr("scenno"));
+	    var varno=parseInt(tg.attr("varno"));
+	    var valno=parseInt(tg.attr("valno"));
+	    validateCell(scno,varno,valno);
+	    //get the constants from the xml
+	    var rowmax=window.lc.nofvar;
+	    var colmax=window.lc.inpend;
+	    var scenmax=window.lc.noscen;
+	    var valstart=window.lc.inpstart;
+
+	    if(varno==rowmax) {
+		if(valno==colmax) {
+		    if(scno==scenmax)	 {
+			$("#formtabs").tabs('select',0);
+			scno=1;
+		    }
+		    else {	    
+			$("#formtabs").tabs('select',scno);
+			scno=scno+1;
+		    }
+		    varno=1;
+		    valno=valstart;
+
+		}
+		else {
+		    valno=valno+1;
+		    varno=1;
+		}
+	    }
+	    else {
+		varno=varno+1;
+	    }
+	    var inp=$("#valinp"+scno+"-"+varno+"-"+valno);
+	    inp.focus();		
+    
+	    return false; //prevent default behaviour
+	}
+ 
 }
