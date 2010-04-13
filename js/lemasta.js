@@ -246,7 +246,7 @@ function eatable(data,rownos,scenno,startrowno,inpstart) {
 			    }
 			}
 			else {
-			    cell=cell+"'"+val+"'";
+			    cell=cell+""+val+"";
 			}
 			cell=cell+"</td>"
 			return cell
