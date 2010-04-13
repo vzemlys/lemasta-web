@@ -130,44 +130,7 @@ $(document).ready(function() {
     
     $("#eform").ajaxForm(options);
     
- /*   $("#eform").bind("keydown", function(e) {
-
-	if (e.keyCode == 13) {
-	    var tg=$(e.target);
-	    var scno=parseInt(tg.attr("scenno"));
-	    var varno=parseInt(tg.attr("varno"));
-	    var valno=parseInt(tg.attr("valno"));
-	    validateCell(scno,varno,valno);
-	    //get the constants from the xml
-	    if(varno==7) {
-		if(valno==6) {
-		    if(scno==3)	 {
-			$("#formtabs").tabs('select',0);
-			scno=1;
-		    }
-		    else {	    
-			$("#formtabs").tabs('select',scno);
-			scno=scno+1;
-		    }
-		    varno=1;
-		    valno=4;
-
-		}
-		else {
-		    valno=valno+1;
-		    varno=1;
-		}
-	    }
-	    else {
-		varno=varno+1;
-	    }
-	    var inp=$("#valinp"+scno+"-"+varno+"-"+valno);
-	    inp.focus();		
-    
-	    return false; //prevent default behaviour
-	}
-});*/
- 
+  
     $('#OK').click(function() { 
             $.unblockUI(); 
             return false; 
@@ -201,13 +164,32 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 		      <li><a href="#frag-1"><span id="fscenname1">Scenarijus 1</span></a></li>
 		      <li><a href="#frag-2"><span id="fscenname2">Scenarijus 2</span></a></li>
 		      <li><a href="#frag-3"><span id="fscenname3">Scenarijus 3</span></a></li>
-		      <li><a href="#frag-4"><span id="fscen">Egzogenizavimas</span></a></li>
-		    
+		      		    
 </ul>
-		    <div id="frag-1"><div id="eformcont1"></div><div id="formerror1"></div></div>
-		    <div id="frag-2"><div id="eformcont2"></div><div id="formerror2"></div></div>
-		    <div id="frag-3"><div id="eformcont3"></div><div id="formerror3"></div></div>
-		    <div id="frag-4"><div id="eformexoadd"></div><div id="formerrorexoadd"></div></div>
+		    <div id="frag-1">
+			    <div id="eformcont1"></div>
+			    <div id="formerror1"></div>
+			    <h3>Nustatymai</h3>
+			    <div id="exosettings1"></div>
+			    <div id="exoadd1"></div>
+			    <div id="settings1"></div>
+		    </div>
+		    <div id="frag-2"><div id="eformcont2"></div><div id="formerror2"></div>
+			    <h3>Nustatymai</h3>
+
+			    <div id="exosettings2"></div>
+			    <div id="exoadd2"></div>
+			    <div id="settings2"></div>
+
+		    </div>
+		    <div id="frag-3"><div id="eformcont3"></div><div id="formerror3"></div>
+			    <h3>Nustatymai</h3>
+
+			    <div id="exosettings3"></div>
+			    <div id="exoadd3"></div>
+			    <div id="settings3"></div>
+
+		    </div>
 
 		</div>
 		<div id="scenchoice"> </div>

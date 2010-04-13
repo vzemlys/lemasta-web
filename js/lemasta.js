@@ -106,6 +106,13 @@ function fbreak(fcdt) {
     }
 
 }
+function eabreak(fcdt) {
+     return {
+	level : csv2arr($("level",$("fbase",fcdt)).text()),
+	growth :csv2arr($("growth",$("fbase",fcdt)).text()),
+    }
+
+}
 function csv2arr(csv) {
     var tmp=[];
     function splittab(block) {
@@ -205,7 +212,52 @@ function ctable(sob,expl) {
     html=html+table.join("\n")+"</table>";
     return html;
 }
+function eatable(data,rownos,scenno,startrowno,inpstart) {
+    var html="";
+    html=html+"<table border=1 cellpadding=2 id='exoaddtable"+scenno+"'>";
+    html=html+"<tr><th></th>";
+    var header=data[0].map(function(val) {
+		return "<th>"+val+"</th>";
+	    })
+    html=html+header.join(" ")+"</tr>\n";
+    
+    var rows=rownos.map(function(val,i) {
+		var row="<tr><td>"+(i+1)+"</td>"
+		var cells=data[val].map(function(val,j){
+		        var cell="<td>";
+			var rowno=startrowno+i+1;
+			var colno=j+1;
+			if(j!=1) {    
+			    cell=cell+"<input name=scen"+scenno+"egzoadd"+i+"[] ";
+			    cell=cell+"value="+val+" ";
+			    cell=cell+"scenno='"+scenno+"' ";
+			    cell=cell+"varno='"+rowno+"' ";
+			    cell=cell+"valno='"+colno+"' ";
+			    if(j<(inpstart+1)) {
+				cell=cell+"type='hidden'>";
+				if(j>0) {
+				    cell=cell+parseFloat(val).toFixed(2);
+				}
+				else cell=cell+val;
+			    }
+			    else {
+				cell=cell+"type='text' size='5' ";
+				cell=cell+"id='valinp"+scenno+"-"+rowno+"-"+colno+"'>";
+			    }
+			}
+			else {
+			    cell=cell+val;
+			}
+			cell=cell+"</td>"
+			return cell
+		    });
+		row=row+cells.join(" ")+"</tr>"
+		return row;
+	    });
+    html=html+rows.join("\n")+"</table>"
+    return html;
 
+}
 function additionalInfo() {
     var valid=true;
     $("#scenchoice").find("input:checked").each(function () {
@@ -215,6 +267,8 @@ function additionalInfo() {
 	    valid=valid && validscen
 	    if(validscen) {
 		$("#eform input[name='scensend"+key+"']").val(serializeScen(key));
+		$("#eform input[name='scensendea"+key+"']").val(serializeScenexo(key));
+
 	    }
         });
     return valid;
@@ -234,11 +288,26 @@ function serializeScen(scno) {
     }
     return res;  
 }
+function serializeScenexo(scno) {
+    var tr=$("#exoaddtable"+scno+" tr");
+    var res="";
+    //omit header row
+    for(var i=1;i<=window.lc.nofvar;i++) {
+	var crow = tr.eq(i);
+	var ccells=$("input",crow);
+	for(var j=0;j<=window.lc.inpend;j++) {
+	    res=res+ccells.eq(j).val()+";";
+	}
+	res=res+"&";
+    }
+    return res;  
+}
+
 
 function validateScen(scno) {
     var valid=true;
-	for(var i=1;i<=7;i++) {
-	    for(var j=4;j<=6;j++) {
+	for(var i=1;i<=window.lc.nofvar;i++) {
+	    for(var j=window.lc.inpstart;j<=window.lc.inpend;j++) {
 		valid=valid && validateCell(scno,i,j);	
 	    }
 	}
@@ -353,13 +422,22 @@ function fillscenario(scen) {
 	$("#eformcont"+id).html(html);
 
 	$("#scenchoice").append('<input type="checkbox" name="fscensend[]" checked="checked" value="'+id+'">'+ name + '</input>');
-
 	$("#stringsubmit").append('<input name="scensend'+id+ '" type="hidden", value="Nothing" id="scensend"'+id+'" </input>');
+	$("#stringsubmit").append('<input name="scensendea'+id+ '" type="hidden", value="Nothing" id="scensendea"'+id+'" </input>');
+
+
      }
      
 
 }
+function fillsettings(id){
+    window.exoa.level.map(function(val,i){
+		if(i>0) {
+		    $("#exosettings"+id).append('<input type="checkbox" name="exoscensend'+id+'[]" value="'+i+'" scenno="'+id+'" exono="'+i+'">'+ val[0] + '</input><br>');
+		}
+    	    });
 
+}
 function xmltocontent(xml) {
     var cdt=[];
     
@@ -382,7 +460,16 @@ function xmltocontent(xml) {
 	};
 	$("#eform").bind("keydown", tablenavigate)
     }
-    
+    if(!window.exoa) {
+	var fbt=$("exoadd",xml);
+        window.exoa=eabreak(fbt);
+	//var eat=eatable(window.exoa.level,[0,1,2],id,7,4);
+	fillsettings(1);
+	fillsettings(2);
+	fillsettings(3);
+//	$("#exoadd1").html(eatable(window.exoa.level,[1,2],1,7,4));
+
+    }
     var frmi=$("#eform input[type=text]");
 
     frmi.blur(function(event){
@@ -401,6 +488,34 @@ function xmltocontent(xml) {
 	var valno=parseInt(tg.attr("valno"));
 	
 	showBounds(scno,varno,valno);
+    });
+    
+    var frmc=$("#eform input[type=checkbox]");
+    frmc.click(function(event){
+	var tg=$(event.target);
+	var scno=parseInt(tg.attr("scenno"));
+	var chc=$("#exosettings"+scno+" input:checked");
+	var n=chc.length;
+	if(n>0) {
+	    if(n>1) {
+		var rowno=[];
+		for(j=0;j<n;j++) {
+		    rowno[j]=parseInt(chc[j].value);
+		}
+	    }
+	    else { 
+		rowno=[parseInt(chc.val())];
+	    }
+	    tbhtml=eatable(window.exoa.level,rowno,scno,window.lc.nofvar,window.lc.inpstart);
+	     
+	    $("#exoadd"+scno).html("");
+	    $("#exoadd"+scno).html(tbhtml);
+
+	}
+	else {
+	    
+	    $("#exoadd"+scno).html("");
+	}
     });
    /* $("#eform input[type=text]").blur(function(event){
 	var tg=$(event.target);
