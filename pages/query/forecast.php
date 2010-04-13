@@ -25,6 +25,7 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
         $rcode=$rcode."source('../../R/code.R')\n";
 	$rcode=$rcode."load('../../R/lemasta.RData')\n";
 	$rcode=$rcode."print('".$_POST["scensend1"]."')\n";
+	$rcode=$rcode."print('".$_POST["scensendea1"]."')\n";
 
 	foreach($check as $sno) {
 	    
@@ -49,8 +50,17 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
 	    $rcode=$rcode."print(bb)\n";
             $rcode=$rcode."cc <- cast(bb,variable~row)\n";
 	    $rcode=$rcode."print(cc)\n";
+	    $str=$_POST["scensendea".$sno];
+	    $rcode=$rcode."ea <- NULL\n";
+	    $rcode=$rcode."if('$str'!=''){\n";
+	    $rcode=$rcode."bb <- ldply(strsplit(strsplit('$str','&')[[1]],';'),todf)\n";
+	    $rcode=$rcode."print(bb)\n";
+            $rcode=$rcode."ea <- cast(bb,variable~row)}\n";
+	    $rcode=$rcode."print(ea)\n";
+
+
 	    $scn=$_POST["scenname".$sno]; 
-	    $rcode=$rcode."doforecast(cc,$sno,'$scn')\n";
+	    $rcode=$rcode."doforecast(cc,ea,1,$sno,'$scn')\n";
 
 	}
 	$fp=fopen($cfn,"w");

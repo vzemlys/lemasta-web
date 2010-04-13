@@ -229,7 +229,7 @@ function eatable(data,rownos,scenno,startrowno,inpstart) {
 			var colno=j+1;
 			if(j!=1) {    
 			    cell=cell+"<input name=scen"+scenno+"egzoadd"+i+"[] ";
-			    cell=cell+"value="+val+" ";
+			    cell=cell+"value='"+val+"' ";
 			    cell=cell+"scenno='"+scenno+"' ";
 			    cell=cell+"varno='"+rowno+"' ";
 			    cell=cell+"valno='"+colno+"' ";
@@ -246,7 +246,7 @@ function eatable(data,rownos,scenno,startrowno,inpstart) {
 			    }
 			}
 			else {
-			    cell=cell+val;
+			    cell=cell+"'"+val+"'";
 			}
 			cell=cell+"</td>"
 			return cell
@@ -291,8 +291,11 @@ function serializeScen(scno) {
 function serializeScenexo(scno) {
     var tr=$("#exoaddtable"+scno+" tr");
     var res="";
+    var noea=$("#exosettings"+scno+" input:checked").length;
+    
+
     //omit header row
-    for(var i=1;i<=window.lc.nofvar;i++) {
+    for(var i=1;i<=noea;i++) {
 	var crow = tr.eq(i);
 	var ccells=$("input",crow);
 	for(var j=0;j<=window.lc.inpend;j++) {
