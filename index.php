@@ -30,22 +30,23 @@
     
 if (!Array.prototype.map)
 {
-  Array.prototype.map = function(fun /*, thisp*/)
-  {
+    Array.prototype.map = function(fun /*, thisp*/)
+{
     var len = this.length;
     if (typeof fun != "function")
-      throw new TypeError();
+	throw new TypeError();
 
     var res = new Array(len);
     var thisp = arguments[1];
     for (var i = 0; i < len; i++)
     {
-      if (i in this)
-        res[i] = fun.call(thisp, this[i], i, this);
+	if (i in this)
+	    res[i] = fun.call(thisp, this[i], i, this);
+	
     }
 
     return res;
-  };
+};
 } 
 
 //This prototype is provided by the Mozilla foundation and
@@ -170,24 +171,49 @@ mainheader("LEMASTA","Valdymas"); //These functions come from structure.php
 			    <div id="eformcont1"></div>
 			    <div id="formerror1"></div>
 			    <h3>Nustatymai</h3>
+			    <h4>Egzogenizuoti rodiklius</h4>
 			    <div id="exosettings1"></div>
 			    <div id="exoadd1"></div>
-			    <div id="settings1"></div>
+			    <h4>Naudoti modelį</h4>
+			    <div id="settings1">
+				Modelis 2001-2009<input type="radio" name="scenselect1" value="1" checked><br>
+				Modelis 1995-2009<input type="radio" name="scenselect1" value="2"><br>
+				Modelis 1997-2009<input type="radio" name="scenselect1" value="3"><br>
+				Modelis 1999-2009<input type="radio" name="scenselect1" value="4">
+
+			    </div>
 		    </div>
 		    <div id="frag-2"><div id="eformcont2"></div><div id="formerror2"></div>
 			    <h3>Nustatymai</h3>
+			     <h4>Egzogenizuoti rodiklius</h4>
 
 			    <div id="exosettings2"></div>
 			    <div id="exoadd2"></div>
-			    <div id="settings2"></div>
+			    
+			    <h4>Naudoti modelį</h4>
+			    <div id="settings2">
+				Modelis 2001-2009<input type="radio" name="scenselect2" value="1" checked><br>
+				Modelis 1995-2009<input type="radio" name="scenselect2" value="2"><br>
+    	Modelis 1997-2009<input type="radio" name="scenselect1" value="3"><br>
+				Modelis 1999-2009<input type="radio" name="scenselect1" value="4">
+
+			    </div>
 
 		    </div>
 		    <div id="frag-3"><div id="eformcont3"></div><div id="formerror3"></div>
 			    <h3>Nustatymai</h3>
+ <h4>Egzogenizuoti rodiklius</h4>
 
 			    <div id="exosettings3"></div>
 			    <div id="exoadd3"></div>
-			    <div id="settings3"></div>
+			    <div id="settings3">
+			    	Modelis 2001-2009<input type="radio" name="scenselect3" value="1" checked><br>
+				Modelis 1995-2009<input type="radio" name="scenselect3" value="2"><br>
+
+	Modelis 1997-2009<input type="radio" name="scenselect1" value="3"><br>
+				Modelis 1999-2009<input type="radio" name="scenselect1" value="4">
+
+</div>
 
 		    </div>
 

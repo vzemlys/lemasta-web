@@ -46,6 +46,8 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
 		 }
 	    }
  */	    $str=$_POST["scensend".$sno];
+	    $model=$_POST["scenselect".$sno];
+	    $rcode=$rcode."print('Model $model selected')\n";
 	    $rcode=$rcode."bb <- ldply(strsplit(strsplit('$str','&')[[1]],';'),todf)\n";
 	    $rcode=$rcode."print(bb)\n";
             $rcode=$rcode."cc <- cast(bb,variable~row)\n";
@@ -60,7 +62,7 @@ if(!empty($_POST["arname"]) & !empty($_POST["nrows"])) {
 
 
 	    $scn=$_POST["scenname".$sno]; 
-	    $rcode=$rcode."doforecast(cc,ea,1,$sno,'$scn')\n";
+	    $rcode=$rcode."doforecast(cc,ea,$model,$sno,'$scn')\n";
 
 	}
 	$fp=fopen($cfn,"w");
