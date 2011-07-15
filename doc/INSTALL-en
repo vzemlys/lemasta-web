@@ -1,0 +1,10 @@
+1. Copy to directory which is accessible to apache.
+2. Set permissions of pages/temp so that apache can write to it
+3. Install the following R packages:
+    require(tseries)
+    require(nleqslv)
+    require(plyr)
+    require(reshape)
+    require(foreach)
+4. Copy  initial.xml from R directory to pages/query/ and set permissions to
+read-only.
